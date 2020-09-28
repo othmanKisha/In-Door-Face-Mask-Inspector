@@ -1,0 +1,5 @@
+*.model
+/dataset
+/face_detector
+*__pycache__
+/train_mask_detector.py
