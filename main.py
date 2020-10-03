@@ -1,5 +1,6 @@
 from flask import Flask, render_template, Response
-from camera import VideoCamera
+from model.camera import VideoCamera, gen
+from keys import CAMERAS
 
 app = Flask(__name__)
 
@@ -9,18 +10,16 @@ def index():
     return render_template('index.html')
 
 
-def gen(camera):
-    while True:
-        frame = camera.get_frame()
-        yield (b'--frame\r\n'
-               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+@app.route('/change_office/<string:office>')
+def change_office(office):
+    return render_template('video_feed.html', id=office)
 
 
-@app.route('/video_feed')
-def video_feed():
-    return Response(gen(VideoCamera()),
-                    mimetype='multipart/x-mixed-replace; boundary=frame')
+@app.route('/video_feed/<string:cam_id>')
+def video_feed(cam_id):
+    frame = gen(VideoCamera(CAMERAS[cam_id]))
+    return Response(frame, mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True)
+    app.run(debug=True)

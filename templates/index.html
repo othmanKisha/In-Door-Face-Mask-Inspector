@@ -1,19 +1,24 @@
-<html>
-  <head>
-    <title>Mod1</title>
-    <style>
-      img {
-        display: block;
-        margin-left: auto;
-        margin-right: auto;
-        width: 35%;
-      }
-    </style>
-  </head>
-  <body>
-    <h1 align="center">
-      Video Streaming with Face Mask Detection Demonistration
-    </h1>
-    <img id="bg" class="center" src="{{ url_for('video_feed') }}" />
-  </body>
-</html>
+{% extends 'base.html' %} 
+{% block title %}Home{% endblock %} 
+
+{% block content%}
+<h1>In Door Face Mask Inspector</h1>
+<h3 for="office">Choose an office:</h3>
+<div class="dropdown">
+  <button
+    class="btn btn-secondary dropdown-toggle"
+    type="button"
+    id="dropdownMenuButton"
+    data-toggle="dropdown"
+    aria-haspopup="true"
+    aria-expanded="false"
+  >
+    Choose Office
+  </button>
+  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+    <a class="dropdown-item" href="{{ url_for('change_office', office='web_cam') }}">Webcam</a>
+    <a class="dropdown-item" href="{{ url_for('change_office', office='office1') }}">Office 1</a>
+  </div>
+</div>
+{% block video_feed %}{% endblock %}
+{% endblock %}
