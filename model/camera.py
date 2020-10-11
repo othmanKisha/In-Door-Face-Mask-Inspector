@@ -28,7 +28,8 @@ class VideoCamera(object):
             cv2.rectangle(frame, (startX, startY), (endX, endY), color, 2)
 
         ret, jpeg = cv2.imencode('.jpg', frame)
-        return jpeg.tobytes()
+        jpeg = jpeg.tobytes()
+        return jpeg
 
 
 def gen(camera):
