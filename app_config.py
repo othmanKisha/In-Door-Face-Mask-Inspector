@@ -1,5 +1,6 @@
 import os
 
+
 CLIENT_ID = "e05825a4-6101-4611-b414-f4d917953ffa" # Application (client) ID of app registration
 
 CLIENT_SECRET = "2_dANHT~I7JrWXGb~10dhr78TH31zgXS-1" # Placeholder - for use ONLY during testing.
