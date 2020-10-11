@@ -4,8 +4,6 @@ dataset/
 # face_detector/
 train_mask_detector.py
 lib/
-.vscode
-.vscode/settings.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
