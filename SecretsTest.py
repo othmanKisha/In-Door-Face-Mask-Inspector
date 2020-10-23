@@ -17,12 +17,10 @@ client = SecretClient(vault_url=KVUri, credential=credential)
 #client.set_secret(secretName, secretValue)
 
 #print(" done.")
-secretName = "CLIENT-SECRET"
-print(f"Retrieving your secret from {keyVaultName}.")
 
-retrieved_secret = client.get_secret(secretName)
+print(client.get_secret("CLIENT-ID"))
+print(client.get_secret("CLIENT-SECRET"))
 
-print(f"Your secret is '{retrieved_secret.value}'.")
 # print(f"Deleting your secret from {keyVaultName} ...")
 
 # poller = client.begin_delete_secret(secretName)

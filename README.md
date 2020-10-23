@@ -1,6 +1,6 @@
-# Coming Project Tasks
+# IDFMI - Coming Project Tasks
 
-## Authentication 
+## Authentication (**DONE**)
 - Store all program keys with either Azure Vault or in a file between the team.
 ### Azure Key Vault
 - key management.
@@ -14,7 +14,7 @@
 - Get frame, check with the *threshold*, store in the database if *prediction* equal to or more than the *threshold*.
 
 ## Backend
-- Connect the backend to key vault and the database.
+- Connect the backend to key vault and the database. (**DONE**)
 ### Gunicorn
 - Configuring gunicorn with the backend.
 

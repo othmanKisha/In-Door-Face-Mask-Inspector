@@ -1,9 +1,20 @@
 import os
+import cmd
+from azure.keyvault.secrets import SecretClient
+from azure.identity import DefaultAzureCredential
 
 
-CLIENT_ID = "e05825a4-6101-4611-b414-f4d917953ffa" # Application (client) ID of app registration
+keyVaultName = os.environ["KEY_VAULT_NAME"]
+KVUri = f"https://{keyVaultName}.vault.azure.net"
 
-CLIENT_SECRET = "2_dANHT~I7JrWXGb~10dhr78TH31zgXS-1" # Placeholder - for use ONLY during testing.
+
+credential = DefaultAzureCredential()
+client = SecretClient(vault_url=KVUri, credential=credential)
+
+
+CLIENT_ID = client.get_secret("CLIENT-ID").value # Application (client) ID of app registration
+
+CLIENT_SECRET = client.get_secret("CLIENT-SECRET").value # Placeholder - for use ONLY during testing.
 # In a production app, we recommend you use a more secure method of storing your secret,
 # like Azure Key Vault. Or, use an environment variable as described in Flask's documentation:
 # https://flask.palletsprojects.com/en/1.1.x/config/#configuring-from-environment-variables
@@ -29,30 +40,30 @@ SCOPE = ["User.ReadBasic.All"]
 
 SESSION_TYPE = "filesystem"  # Specifies the token cache should be stored in server-side session
 
-# [IMPORTANT]
-# *** Here we should add all cameras ***
-# - IP Cameras should be added as follows:
-#   "rtsp://<ip>:<port>/h264_pcm.sdp"
-#   or 
-#   "rtsp://<ip>:<port>/h264_ulaw.sdp"
-#   - testing on ip webcam app for android
-#   - the app should be on the same network as the computer to identify it
+# # [IMPORTANT]
+# # *** Here we should add all cameras ***
+# # - IP Cameras should be added as follows:
+# #   "rtsp://<ip>:<port>/h264_pcm.sdp"
+# #   or 
+# #   "rtsp://<ip>:<port>/h264_ulaw.sdp"
+# #   - testing on ip webcam app for android
+# #   - the app should be on the same network as the computer to identify it
 
-# - 0 refers to the webcam of laptop, it is only for testing purposes
+# # - 0 refers to the webcam of laptop, it is only for testing purposes
 
 CAMERAS = {
     "web_cam": 0,
     "office1": "rtsp://192.168.100.13:8080/h264_pcm.sdp"
 }
 
-# [IMPORTANT]
-# - Here we should store the follwoing important keys for the database:
-#    - the url.
-#    - the port.
-#    - the name of the database.    
+# # [IMPORTANT]
+# # - Here we should store the follwoing important keys for the database:
+# #    - the url.
+# #    - the port.
+# #    - the name of the database.    
 
-DATABASE = {
-    "url": "",
-    "port": "",
-    "name": ""
-}
+# DATABASE = {
+#     "url": "",
+#     "port": "",
+#     "name": ""
+# }
