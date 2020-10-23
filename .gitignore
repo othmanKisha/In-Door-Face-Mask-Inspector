@@ -117,6 +117,8 @@ flask_session/
 .vscode/
 
 # app auth files
-# app_config_b2c.py
+app_config_b2c.py
 # app_config.py
 AppCreationScripts/
+SecretsTest.py
+Instructions.txt
