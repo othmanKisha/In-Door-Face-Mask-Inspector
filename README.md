@@ -25,7 +25,10 @@ Will use various templates from the internet.
 ### Administrator Page
 
 ## Others
-### Containerization
+### Containerization (**DONE**)
+- To use the system locally just type:
+
+    `python app\app.py`
 ### Costumization
 - Dynamic or Static.
 - Inside the program or After deployment.

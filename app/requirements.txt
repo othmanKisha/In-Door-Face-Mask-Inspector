@@ -13,3 +13,4 @@ pillow==7.2.0
 requests==2.24.0
 tensorflow>=1.15.2
 Werkzeug==1.0.1
+gunicorn==20.0.4

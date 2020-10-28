@@ -1,0 +1,52 @@
+version: "3.8"
+
+services:
+
+  idfmi:
+    build: 
+      context: ./app
+      dockerfile: Dockerfile
+    tty: true  
+    restart: always  
+    environment:
+      - KEY_VAULT_NAME=${KEY_VAULT_NAME}
+      - AZURE_CLIENT_ID=${AZURE_CLIENT_ID}
+      - AZURE_CLIENT_SECRET=${AZURE_CLIENT_SECRET}
+      - AZURE_SUBSCRIPTION_ID=${AZURE_SUBSCRIPTION_ID}
+      - AZURE_TENANT_ID=${AZURE_TENANT_ID}  
+      # - MONGODB_DATABASE=idfmiDB
+      # - MONGODB_USERNAME=kfupm_idfmi
+      # - MONGODB_PASSWORD=idfmi
+      # - MONGODB_HOSTNAME=mongodb
+    ports:
+      - 5000:5000
+    volumes:
+      - ./app/:/app/
+#     networks:
+#       - backend  
+
+#   db:
+#     image: mongo:latest
+#     container_name: mongodb
+#     restart: unless-stopped
+#     command: mongod --auth  
+#     environment:
+#       - MONGO_INITDB_ROOT_USERNAME=kfupm_idfmi
+#       - MONGO_INITDB_ROOT_PASSWORD=idfmi
+#       - MONGO_INITDB_DATABASE=idfmiDB
+#       - MONGODB_DATA_DIR=/data/db
+#       - MONGODB_LOG_DIR=/dev/null
+#     ports:
+#       - 27017:27017  
+#     volumes:
+#       - mongodbdata:/data/db
+#     networks:
+#       - backend  
+
+# networks:
+#     backend:
+#       driver: bridge
+
+# volumes:
+#     mongodbdata:
+#       driver: local

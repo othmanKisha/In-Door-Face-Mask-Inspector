@@ -1,3 +1,4 @@
+from werkzeug.middleware.proxy_fix import ProxyFix
 import uuid
 import requests
 from flask import Flask, render_template, session, request, redirect, url_for, Response
@@ -6,7 +7,7 @@ import msal
 import app_config
 from model.camera import VideoCamera, gen
 from app_config import CAMERAS
-
+  
 
 app = Flask(__name__)
 app.config.from_object(app_config)
@@ -16,8 +17,8 @@ Session(app)
 # generate http scheme when this sample is running on localhost,
 # and to generate https scheme when it is deployed behind reversed proxy.
 # See also https://flask.palletsprojects.com/en/1.0.x/deploying/wsgi-standalone/#proxy-setups
-from werkzeug.middleware.proxy_fix import ProxyFix
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
+
 
 @app.route("/")
 def index():
@@ -25,11 +26,13 @@ def index():
         return redirect(url_for("login"))
     return render_template('index.html')
 
+
 @app.route('/change_office/<string:office>')
 def change_office(office):
     if not session.get("user"):
         return redirect(url_for("login"))
     return render_template('video/video_feed.html', id=office)
+
 
 @app.route('/video_feed/<string:cam_id>')
 def video_feed(cam_id):
@@ -37,6 +40,7 @@ def video_feed(cam_id):
         return redirect(url_for("login"))
     frame = gen(VideoCamera(CAMERAS[cam_id]))
     return Response(frame, mimetype='multipart/x-mixed-replace; boundary=frame')
+
 
 @app.route("/login")
 def login():
@@ -46,7 +50,9 @@ def login():
     auth_url = _build_auth_url(scopes=app_config.SCOPE, state=session["state"])
     return render_template("auth/login.html", auth_url=auth_url, version=msal.__version__)
 
-@app.route(app_config.REDIRECT_PATH)  # Its absolute URL must match your app's redirect_uri set in AAD
+
+# Its absolute URL must match your app's redirect_uri set in AAD
+@app.route(app_config.REDIRECT_PATH)
 def authorized():
     if request.args.get('state') != session.get("state"):
         return redirect(url_for("index"))  # No-OP. Goes back to Index page
@@ -64,12 +70,14 @@ def authorized():
         _save_cache(cache)
     return redirect(url_for("index"))
 
+
 @app.route("/logout")
 def logout():
     session.clear()  # Wipe out user and its token cache from session
     return redirect(  # Also logout from your tenant's web session
         app_config.AUTHORITY + "/oauth2/v2.0/logout" +
         "?post_logout_redirect_uri=" + url_for("index", _external=True))
+
 
 @app.route("/graphcall")
 def graphcall():
@@ -79,7 +87,7 @@ def graphcall():
     graph_data = requests.get(  # Use token to call downstream service
         app_config.ENDPOINT,
         headers={'Authorization': 'Bearer ' + token['access_token']},
-        ).json()
+    ).json()
     return render_template('auth/display.html', result=graph_data)
 
 
@@ -89,20 +97,24 @@ def _load_cache():
         cache.deserialize(session["token_cache"])
     return cache
 
+ 
 def _save_cache(cache):
     if cache.has_state_changed:
         session["token_cache"] = cache.serialize()
+
 
 def _build_msal_app(cache=None, authority=None):
     return msal.ConfidentialClientApplication(
         app_config.CLIENT_ID, authority=authority or app_config.AUTHORITY,
         client_credential=app_config.CLIENT_SECRET, token_cache=cache)
 
+
 def _build_auth_url(authority=None, scopes=None, state=None):
     return _build_msal_app(authority=authority).get_authorization_request_url(
         scopes or [],
         state=state or str(uuid.uuid4()),
         redirect_uri=url_for("authorized", _external=True))
+
 
 def _get_token_from_cache(scope=None):
     cache = _load_cache()  # This web app maintains one cache per session
@@ -113,8 +125,11 @@ def _get_token_from_cache(scope=None):
         _save_cache(cache)
         return result
 
-app.jinja_env.globals.update(_build_auth_url=_build_auth_url)  # Used in template
+
+# Used in template
+app.jinja_env.globals.update(_build_auth_url=_build_auth_url)
+
 
 if __name__ == "__main__":
-    app.run()
-
+    app.run(host='0.0.0.0')
+    
