@@ -10,13 +10,10 @@ COPY ./requirements.txt /
 RUN pip install -r requirements.txt
 
 # Adding the app files
-COPY . /app
+COPY ./app /app
 
 # Setting the working directory
 WORKDIR /app
 
 # Expossing ports
 EXPOSE 5000
-
-# Run development server
-CMD ["python", "app.py"]

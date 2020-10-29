@@ -3,11 +3,11 @@ version: "3.8"
 services:
 
   idfmi:
-    build: 
-      context: ./app
-      dockerfile: Dockerfile
+    build: .
     tty: true  
     restart: always  
+    command: python /app/app.py
+    # command: gunicorn --workers 4 --threads 4 --timeout 120 --bind 0.0.0.0:5000 app:app
     environment:
       - KEY_VAULT_NAME=${KEY_VAULT_NAME}
       - AZURE_CLIENT_ID=${AZURE_CLIENT_ID}
@@ -18,12 +18,13 @@ services:
       # - MONGODB_USERNAME=kfupm_idfmi
       # - MONGODB_PASSWORD=idfmi
       # - MONGODB_HOSTNAME=mongodb
+    # depends_on:
+    #   - db  
     ports:
       - 5000:5000
     volumes:
       - ./app/:/app/
-#     networks:
-#       - backend  
+
 
 #   db:
 #     image: mongo:latest
@@ -40,13 +41,7 @@ services:
 #       - 27017:27017  
 #     volumes:
 #       - mongodbdata:/data/db
-#     networks:
-#       - backend  
 
-# networks:
-#     backend:
-#       driver: bridge
 
 # volumes:
 #     mongodbdata:
-#       driver: local
