@@ -3,21 +3,24 @@ version: "3.8"
 services:
 
   idfmi:
-    build: .
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    container_name: idfmi  
     tty: true  
     restart: always  
-    command: python /app/app.py
-    # command: gunicorn --workers 4 --threads 4 --timeout 120 --bind 0.0.0.0:5000 app:app
     environment:
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
       - KEY_VAULT_NAME=${KEY_VAULT_NAME}
       - AZURE_CLIENT_ID=${AZURE_CLIENT_ID}
       - AZURE_CLIENT_SECRET=${AZURE_CLIENT_SECRET}
       - AZURE_SUBSCRIPTION_ID=${AZURE_SUBSCRIPTION_ID}
       - AZURE_TENANT_ID=${AZURE_TENANT_ID}  
-      # - MONGODB_DATABASE=idfmiDB
-      # - MONGODB_USERNAME=kfupm_idfmi
-      # - MONGODB_PASSWORD=idfmi
-      # - MONGODB_HOSTNAME=mongodb
+      - MONGODB_DATABASE=idfmiDB
+      - MONGODB_USERNAME=kfupm_idfmi
+      - MONGODB_PASSWORD=idfmi
+      - MONGODB_HOSTNAME=mongodb
     # depends_on:
     #   - db  
     ports:

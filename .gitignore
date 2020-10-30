@@ -1,7 +1,7 @@
 # Model files and folders
-# *.model
 dataset/
 # face_detector/
+# mask_detector/
 train_mask_detector.py
 lib/
 

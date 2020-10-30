@@ -13,10 +13,10 @@
 ### Saving Violation Photos
 - Get frame, check with the *threshold*, store in the database if *prediction* equal to or more than the *threshold*.
 
-## Backend
-- Connect the backend to key vault and the database. (**DONE**)
+## Backend (**DONE**)
+- Connect the backend to key vault and the database. 
 ### Gunicorn
-- Configuring gunicorn with the backend.
+- Configuring gunicorn with the backend. 
 
 ## Frontend 
 Will use various templates from the internet.

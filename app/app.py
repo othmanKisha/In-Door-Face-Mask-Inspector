@@ -5,7 +5,7 @@ from flask import Flask, render_template, session, request, redirect, url_for, R
 from flask_session import Session  # https://pythonhosted.org/Flask-Session
 import msal
 import app_config
-from model.camera import VideoCamera, gen
+from model.model import VideoCamera, gen
 from app_config import CAMERAS
   
 
@@ -38,7 +38,7 @@ def change_office(office):
 def video_feed(cam_id):
     if not session.get("user"):
         return redirect(url_for("login"))
-    frame = gen(VideoCamera(CAMERAS[cam_id]))
+    frame = gen(VideoCamera(CAMERAS[cam_id]))    
     return Response(frame, mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
