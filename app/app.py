@@ -1,17 +1,33 @@
-from werkzeug.middleware.proxy_fix import ProxyFix
-import uuid
-import requests
 from flask import Flask, render_template, session, request, redirect, url_for, Response
-from flask_session import Session  # https://pythonhosted.org/Flask-Session
-import msal
-import app_config
+from werkzeug.middleware.proxy_fix import ProxyFix
 from model.model import VideoCamera, gen
-from app_config import CAMERAS
-  
+from bson.objectid import ObjectId
+from flask_session import Session  # https://pythonhosted.org/Flask-Session
+from flask_pymongo import PyMongo
+import app_config
+import requests
+import uuid
+import msal
+
 
 app = Flask(__name__)
 app.config.from_object(app_config)
 Session(app)
+
+mongo = PyMongo(app)
+cameras = mongo.db.cameras
+cameras.insert_many([
+    {
+        "_id": ObjectId(),
+        "office": "web_cam",
+        "rtsp": 0
+    },
+    {
+        "_id": ObjectId(),
+        "office": "office1",
+        "rtsp": "rtsp://192.168.100.13:8080/h264_pcm.sdp"
+    }
+])
 
 # This section is needed for url_for("foo", _external=True) to automatically
 # generate http scheme when this sample is running on localhost,
@@ -38,7 +54,8 @@ def change_office(office):
 def video_feed(cam_id):
     if not session.get("user"):
         return redirect(url_for("login"))
-    frame = gen(VideoCamera(CAMERAS[cam_id]))    
+    camera = cameras.find_one({'office': cam_id})
+    frame = gen(VideoCamera(camera['rtsp']))
     return Response(frame, mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
@@ -97,7 +114,7 @@ def _load_cache():
         cache.deserialize(session["token_cache"])
     return cache
 
- 
+
 def _save_cache(cache):
     if cache.has_state_changed:
         session["token_cache"] = cache.serialize()
@@ -126,10 +143,9 @@ def _get_token_from_cache(scope=None):
         return result
 
 
-# Used in template
+# used for templates
 app.jinja_env.globals.update(_build_auth_url=_build_auth_url)
 
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0')
-    

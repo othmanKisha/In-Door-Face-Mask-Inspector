@@ -21,30 +21,30 @@ services:
       - MONGODB_USERNAME=kfupm_idfmi
       - MONGODB_PASSWORD=idfmi
       - MONGODB_HOSTNAME=mongodb
-    # depends_on:
-    #   - db  
+    depends_on:
+      - db  
     ports:
       - 5000:5000
     volumes:
       - ./app/:/app/
 
 
-#   db:
-#     image: mongo:latest
-#     container_name: mongodb
-#     restart: unless-stopped
-#     command: mongod --auth  
-#     environment:
-#       - MONGO_INITDB_ROOT_USERNAME=kfupm_idfmi
-#       - MONGO_INITDB_ROOT_PASSWORD=idfmi
-#       - MONGO_INITDB_DATABASE=idfmiDB
-#       - MONGODB_DATA_DIR=/data/db
-#       - MONGODB_LOG_DIR=/dev/null
-#     ports:
-#       - 27017:27017  
-#     volumes:
-#       - mongodbdata:/data/db
+  db:
+    image: mongo:latest
+    container_name: mongodb
+    restart: unless-stopped
+    command: mongod --auth  
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=kfupm_idfmi
+      - MONGO_INITDB_ROOT_PASSWORD=idfmi
+      - MONGO_INITDB_DATABASE=idfmiDB
+      - MONGODB_DATA_DIR=/data/db
+      - MONGODB_LOG_DIR=/dev/null
+    ports:
+      - 27017:27017  
+    volumes:
+      - mongodbdata:/data/db
 
 
-# volumes:
-#     mongodbdata:
+volumes:
+    mongodbdata:

@@ -1,7 +1,5 @@
 FROM python:3.8.1
 
-# Copying wsgi configuration file
-COPY ./wsgi.conf.py /
 # Copying the requirements file
 COPY ./requirements.txt /
 # Upgrading pip
@@ -16,6 +14,5 @@ WORKDIR /app
 
 # Exposing port 5000
 EXPOSE 5000
-
 # Running Gunicorn
-ENTRYPOINT ["gunicorn", "app:app", "--config", "/wsgi.conf.py"]
+ENTRYPOINT ["gunicorn", "app:app", "--config", "gunicorn.conf.py"]

@@ -4,6 +4,8 @@ from azure.keyvault.secrets import SecretClient
 from azure.identity import DefaultAzureCredential
 
 
+MONGO_URI = f"mongodb://{os.environ['MONGODB_HOSTNAME']}:27017/{os.environ['MONGODB_DATABASE']}"
+
 keyVaultName = os.environ["KEY_VAULT_NAME"]
 KVUri = f"https://{keyVaultName}.vault.azure.net"
 
@@ -37,16 +39,3 @@ ENDPOINT = 'https://graph.microsoft.com/v1.0/users'  # This resource requires no
 SCOPE = ["User.ReadBasic.All"]
 
 SESSION_TYPE = "filesystem"  # Specifies the token cache should be stored in server-side session
-
-# # [IMPORTANT]
-# # *** Here we should add all cameras ***
-# # - IP Cameras should be added as follows:
-# #   "rtsp://<ip>:<port>/h264_pcm.sdp"
-# #   or 
-# #   "rtsp://<ip>:<port>/h264_ulaw.sdp"
-# #   - testing on ip webcam app for android
-# #   - the app should be on the same network as the computer to identify it
-CAMERAS = {
-    "web_cam": 0,
-    "office1": "rtsp://192.168.100.13:8080/h264_pcm.sdp"
-}

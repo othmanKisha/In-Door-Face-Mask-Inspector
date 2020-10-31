@@ -2,6 +2,9 @@ argparse==1.1
 imutils==0.5.3
 Flask==1.1.2
 Flask-Session==0.3.2   
+Flask-PyMongo
+bson
+gunicorn
 keras==2.3.1
 msal==1.5.0
 numpy==1.18.2
@@ -13,5 +16,3 @@ pillow==7.2.0
 requests==2.24.0
 tensorflow>=1.15.2
 Werkzeug==1.0.1
-gunicorn
-pymongo
