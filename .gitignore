@@ -122,3 +122,5 @@ app_config_b2c.py
 AppCreationScripts/
 SecretsTest.py
 Instructions.txt
+
+logs/

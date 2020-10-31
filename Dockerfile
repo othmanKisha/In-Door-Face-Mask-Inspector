@@ -15,4 +15,4 @@ WORKDIR /app
 # Exposing port 5000
 EXPOSE 5000
 # Running Gunicorn
-ENTRYPOINT ["gunicorn", "app:app", "--config", "gunicorn.conf.py"]
+ENTRYPOINT ["gunicorn", "app:app", "--config", "wsgi.conf.py"]

@@ -4,8 +4,6 @@ from azure.keyvault.secrets import SecretClient
 from azure.identity import DefaultAzureCredential
 
 
-MONGO_URI = f"mongodb://{os.environ['MONGODB_HOSTNAME']}:27017/{os.environ['MONGODB_DATABASE']}"
-
 keyVaultName = os.environ["KEY_VAULT_NAME"]
 KVUri = f"https://{keyVaultName}.vault.azure.net"
 
@@ -39,3 +37,7 @@ ENDPOINT = 'https://graph.microsoft.com/v1.0/users'  # This resource requires no
 SCOPE = ["User.ReadBasic.All"]
 
 SESSION_TYPE = "filesystem"  # Specifies the token cache should be stored in server-side session
+
+MONGO_HOST = os.environ['MONGODB_HOSTNAME']
+MONGO_PORT = int(os.environ['MONGODB_PORT'])
+MONGO_DB = os.environ['MONGODB_DATABASE']
