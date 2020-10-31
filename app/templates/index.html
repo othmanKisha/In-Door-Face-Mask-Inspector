@@ -1,5 +1,5 @@
 {% extends 'base.html' %} 
-{% block title %}Home{% endblock %} 
+{% block title %} Home {% endblock %} 
 
 {% block content%}
 <h1>In Door Face Mask Inspector</h1>
@@ -16,9 +16,10 @@
     Choose Office
   </button>
   <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-    <a class="dropdown-item" href="{{ url_for('change_office', office='web_cam') }}">Webcam</a>
-    <a class="dropdown-item" href="{{ url_for('change_office', office='office1') }}">Office 1</a>
-  </div>
+    {% for office, label in offices %}
+      <a class="dropdown-item" href="{{ url_for('change_office', office=office) }}">{{ label }}</a>
+    {% endfor %}
+    </div>
 </div>
 {% block video_feed %}{% endblock %}
 {% endblock %}

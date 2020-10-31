@@ -1,5 +1,10 @@
 FROM python:3.8.1
 
+# Copying the entrypoint shell script file
+COPY ./entrypoint.sh /
+# Changing the permissions for the entrypoint file
+RUN chmod +x ./entrypoint.sh
+
 # Copying the requirements file
 COPY ./requirements.txt /
 # Upgrading pip
@@ -15,4 +20,4 @@ WORKDIR /app
 # Exposing port 5000
 EXPOSE 5000
 # Running Gunicorn
-ENTRYPOINT ["gunicorn", "app:app", "--config", "wsgi.conf.py"]
+ENTRYPOINT ["sh", "/entrypoint.sh"]

@@ -1,5 +1,6 @@
 import os
 import cmd
+from pymongo import MongoClient
 from azure.keyvault.secrets import SecretClient
 from azure.identity import DefaultAzureCredential
 
@@ -38,6 +39,28 @@ SCOPE = ["User.ReadBasic.All"]
 
 SESSION_TYPE = "filesystem"  # Specifies the token cache should be stored in server-side session
 
-MONGO_HOST = os.environ['MONGODB_HOSTNAME']
-MONGO_PORT = int(os.environ['MONGODB_PORT'])
-MONGO_DB = os.environ['MONGODB_DATABASE']
+# Initiating the mongo client
+client = MongoClient(
+    host=os.environ['MONGODB_HOSTNAME'],
+    port=int(os.environ['MONGODB_PORT']),
+    username=os.environ['MONGODB_USERNAME'],
+    password=os.environ['MONGODB_PASSWORD']
+)
+
+# Connecting with the idfmiDB
+db = client[os.environ['MONGODB_DATABASE']]
+
+# Cameras collection
+cameras = db.cameras
+
+# cameras.insert_many([
+#     {"office": "1", "label": "#1", "RTSP": "rtsp://192.168.100.13:8080/h264_pcm.sdp"},
+#     {"office": "2", "label": "#2", "RTSP": "rtsp://192.168.100.13:8080/h264_pcm.sdp"},
+#     {"office": "3", "label": "#3", "RTSP": "rtsp://192.168.100.13:8080/h264_pcm.sdp"},
+#     {"office": "4", "label": "#4", "RTSP": "rtsp://192.168.100.13:8080/h264_pcm.sdp"},
+#     {"office": "5", "label": "#5", "RTSP": "rtsp://192.168.100.13:8080/h264_pcm.sdp"},
+#     {"office": "6", "label": "#6", "RTSP": "rtsp://192.168.100.13:8080/h264_pcm.sdp"},
+#     {"office": "7", "label": "#7", "RTSP": "rtsp://192.168.100.13:8080/h264_pcm.sdp"},
+#     {"office": "8", "label": "#8", "RTSP": "rtsp://192.168.100.13:8080/h264_pcm.sdp"},
+#     {"office": "9", "label": "#9", "RTSP": "rtsp://192.168.100.13:8080/h264_pcm.sdp"}
+# ])
