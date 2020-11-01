@@ -1,5 +1,5 @@
 from flask import session, url_for
-import app_config
+import config
 import uuid
 import msal
 
@@ -18,8 +18,8 @@ def _save_cache(cache):
 
 def _build_msal_app(cache=None, authority=None):
     return msal.ConfidentialClientApplication(
-        app_config.CLIENT_ID, authority=authority or app_config.AUTHORITY,
-        client_credential=app_config.CLIENT_SECRET, token_cache=cache)
+        config.CLIENT_ID, authority=authority or config.AUTHORITY,
+        client_credential=config.CLIENT_SECRET, token_cache=cache)
 
 
 def _build_auth_url(authority=None, scopes=None, state=None):

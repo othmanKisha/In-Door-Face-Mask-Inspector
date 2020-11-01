@@ -1,6 +1,6 @@
 from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
 from tensorflow.keras.preprocessing.image import img_to_array
-from .model_config import faceNet, maskNet, args
+from model.config import faceNet, maskNet, args
 import numpy as np
 import imutils
 import time
