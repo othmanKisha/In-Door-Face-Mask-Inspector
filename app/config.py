@@ -41,14 +41,14 @@ SESSION_TYPE = "filesystem"  # Specifies the token cache should be stored in ser
 
 # Initiating the mongo client
 client = MongoClient(
-    host=os.environ['MONGODB_HOSTNAME'], # taken from environment variable passed from the compose
-    port=int(os.environ['MONGODB_PORT']), # taken from environment variable passed from the compose
-    username=os.environ['MONGODB_USERNAME'], # taken from environment variable passed from the compose
-    password=os.environ['MONGODB_PASSWORD'] # taken from environment variable passed from the compose
+    host=os.environ['MONGODB_HOSTNAME'], 
+    port=int(os.environ['MONGODB_PORT']), 
+    username=os.environ['MONGODB_USERNAME'], 
+    password=os.environ['MONGODB_PASSWORD'] 
 )
 
 # Connecting with the idfmiDB
-db = client[os.environ['MONGODB_DATABASE']] # taken from environment variable passed from the compose
+db = client[os.environ['MONGODB_DATABASE']] 
 
 # db.cameras.insert_many([
 #     {"office": "1", "label": "#1", "RTSP": "rtsp://192.168.100.13:8080/h264_pcm.sdp"},
