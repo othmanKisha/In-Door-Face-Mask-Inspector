@@ -8,12 +8,9 @@ import os
 
 
 keyVaultName = os.environ["KEY_VAULT_NAME"]
-KeyVaultUri = f"https://{keyVaultName}.vault.azure.net"
+KVUri = f"https://{keyVaultName}.vault.azure.net"
 credential = DefaultAzureCredential()
-client = SecretClient(
-    vault_url=KeyVaultUri,
-    credential=credential
-)
+client = SecretClient(vault_url=KVUri, credential=credential)
 
 
 # The Client ID for azure active directory
@@ -49,76 +46,76 @@ SESSION_TYPE = "filesystem"
 
 # Database username
 # Passed with the environment for docker
-userDB = os.environ['MONGODB_USERNAME'] 
+DB_USER = os.environ['MONGODB_USERNAME'] 
 
 # Database password
 # Passed with the environment for docker
-passDB = os.environ['MONGODB_PASSWORD']
+DB_PASS = os.environ['MONGODB_PASSWORD']
 
 # The hostname of the server that hosts the database
 # Passed with the environment for docker
-hostDB = os.environ['MONGODB_HOSTNAME'] 
+DB_HOST = os.environ['MONGODB_HOSTNAME'] 
 
 # The port at which the database is running
-portDB = 27017
+DB_PORT = 27017
 
 # The name of the database
 # Passed with the environment for docker
-nameDB = os.environ['MONGODB_DATABASE']
+DB_NAME = os.environ['MONGODB_DATABASE']
 
 # Connecting with mongodb
 cluster = MongoClient(
-    host=hostDB, 
-    port=portDB, 
-    username=userDB, 
-    password=passDB
+    host=DB_HOST, 
+    port=DB_PORT, 
+    username=DB_USER, 
+    password=DB_PASS
 )
 
 
 # Assigning the db using the db name
-db = cluster[nameDB]
+db = cluster[DB_NAME]
 
 # The default confidence of the model
 CONFIDENCE = 0.5
 
 # The directory containing the models
-modelsDirectory = "models"
+MODELS_DIR = "models"
 
 # The directory containing the models for face detector
-faceDetector = "face_detector"
+FACE_DETECTOR = "face_detector"
 
 # The directory containing the models for mask detector
-maskDetector = "mask_detector"
+MASK_DETECTOR = "mask_detector"
 
 # The file that contains the weights for the face detector
-weightsFile = "res10_300x300_ssd_iter_140000.caffemodel"
+WEIGHTS_FILE = "res10_300x300_ssd_iter_140000.caffemodel"
 
 # The file that contains the prototxt for the face detector
-prototxtFile = "deploy.prototxt"
+PROTOTXT_FILE = "deploy.prototxt"
 
 # The file that contains the mask detector model
-modelFile = "mask_detector.model"
+MODEL_FILE = "mask_detector.model"
 
 # The face detector model
 FACE_NET = cv2.dnn.readNet(
     os.path.sep.join([
-        modelsDirectory,
-        faceDetector, 
-        prototxtFile
+        MODELS_DIR,
+        FACE_DETECTOR, 
+        PROTOTXT_FILE
     ]),
     os.path.sep.join([
-        modelsDirectory, 
-        faceDetector, 
-        weightsFile
+        MODELS_DIR, 
+        FACE_DETECTOR, 
+        WEIGHTS_FILE
     ])
 )
 
 
 # The mask detector model
 MASK_NET = load_model(os.path.sep.join([
-    modelsDirectory, 
-    maskDetector, 
-    modelFile
+    MODELS_DIR, 
+    MASK_DETECTOR, 
+    MODEL_FILE
 ]))
 
 
@@ -126,7 +123,7 @@ MASK_NET = load_model(os.path.sep.join([
 EMAIL_ADDRESS = "idfmi255@gmail.com"
 
 # The password of the mail server
-EMAIL_PASSWORD = ""
+EMAIL_PASSWORD = "idfmi@123"
 
 # The server used for smtp
 SMTP_SERVER = "smtp.gmail.com"
