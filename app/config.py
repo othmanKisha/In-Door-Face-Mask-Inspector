@@ -133,12 +133,3 @@ SMTP_PORT = 587
 
 # Signning to the smtp server
 smtp = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
-
-# SMS Client id
-SMS_CLIENT_ID = ""
-
-# SMS secret
-SMS_SECRET = ""
-
-# SMS Base phone number
-SMS_PHONE_NUMBER = ""
