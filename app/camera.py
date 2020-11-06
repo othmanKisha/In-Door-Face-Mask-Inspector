@@ -2,12 +2,20 @@
 # From https://github.com/miguelgrinberg/flask-video-streaming
 from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
 from tensorflow.keras.preprocessing.image import img_to_array
+from email.mime.text import MIMEText
+from email.mime.image import MIMEImage
+from email.mime.multipart import MIMEMultipart
 import numpy as np
 import cv2
 import imutils
+import gridfs
+import PIL.Image as Image
 import threading
 import time
 import os
+import io
+#ByteIO is better than > Pickle > tostring > etc...
+from datetime import datetime
 import config
 try:
     from greenlet import getcurrent as get_ident
@@ -171,6 +179,7 @@ class Camera(BaseCamera):
                             cv2.FONT_HERSHEY_SIMPLEX, 0.45, color, 2)
                 cv2.rectangle(img, (startX, startY), (endX, endY), color, 2)
 
+            jpg = cv2.imencode('.jpg', img)[1].tobytes()
             if violation:
                 if detection_timer == 0:
                     if not detected:
@@ -178,6 +187,8 @@ class Camera(BaseCamera):
                         detection_timer = 60
                     else:
                         detected = False
+                        SendMail(jpg, Camera.video_source)
+                        StoreImage(jpg)
                 else:
                     detection_timer -= 1
             else:
@@ -186,7 +197,7 @@ class Camera(BaseCamera):
 
             # encode as a jpeg image and return it
             time.sleep(0.05)
-            yield cv2.imencode('.jpg', img)[1].tobytes()
+            yield jpg
 
 
 def detect_and_predict_mask(frame, faceNet, maskNet):
@@ -230,3 +241,75 @@ def gen(camera):
                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
     except Exception:
         yield ''
+
+
+def SendMail(jpg, rtsp):
+    # img_data = open(ImgFileName,'rb').read()
+    msg = MIMEMultipart()
+    msg['Subject'] = 'IDFMI Alert'
+    cams = config.db['cameras'].find({'RTSP': rtsp})
+    To = {cam['supervisor_email'] for cam in cams}
+    # To = {'s201651740@kfupm.edu.sa','medo111.2018@gmail.com'}
+
+    text = MIMEText("""
+        This email is being sent to test the functionality of the program
+    """)
+    msg.attach(text)
+    # image = MIMEImage(img_data, name=os.path.basename(ImgFileName))
+    image = MIMEImage(jpg, name="ViolationPic.jpg")
+    msg.attach(image)
+    # password = input(str("Enter your password: "))
+
+    config.smtp.ehlo()
+    config.smtp.starttls()
+    config.smtp.ehlo()
+    config.smtp.login(config.EMAIL_ADDRESS, config.EMAIL_PASSWORD)
+    config.smtp.sendmail(config.EMAIL_ADDRESS, To, msg.as_string())
+    config.smtp.quit()
+
+
+def StoreImage(jpg):
+    # gridFS instance
+    fs = gridfs.GridFS(config.db)
+
+    # read the image as a byte
+    # img = cv2.imread("test.jpg")
+    pil_image = Image.fromarray(jpg)
+
+    #Convert array to image
+    b = io.BytesIO()
+    pil_image.save(b, 'jpeg')
+    im_bytes = b.getvalue()
+    b.close()
+
+    #save image into DB.
+    imageID = fs.put(im_bytes)
+
+    #get time
+    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    # print(now)
+
+    #define meta data
+    meta = {
+        'name': 'Violations',
+        'images': [
+            {
+                'imageID': imageID,
+                'time': now
+            }
+        ]
+    }
+
+    #store meta data
+    config.db['Violation_pic'].insert_one(meta)
+
+    # get the image meta data
+    # image = config.db['Violation_pic'].find_one({'name': 'Violations'})['images'][0]
+
+    # # get the image from gridfs
+    # gOut = fs.get(image['imageID'])
+
+    # # convert bytes to ndarray
+    # read_pil_image = Image.open(io.BytesIO(gOut.read()))
+    # array = np.array(read_pil_image)
+    # print(array)

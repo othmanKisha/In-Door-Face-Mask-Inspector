@@ -2,6 +2,7 @@ from azure.identity import DefaultAzureCredential
 from azure.keyvault.secrets import SecretClient
 from tensorflow.keras.models import load_model
 from pymongo import MongoClient
+import smtplib
 import cv2
 import os
 
@@ -122,10 +123,19 @@ MASK_NET = load_model(os.path.sep.join([
 
 
 # The email for the mail server
-EMAIL = ""
+EMAIL_ADDRESS = "idfmi255@gmail.com"
 
 # The password of the mail server
 EMAIL_PASSWORD = ""
+
+# The server used for smtp
+SMTP_SERVER = "smtp.gmail.com"
+
+# The smtp port used for the email
+SMTP_PORT = 587
+
+# Signning to the smtp server
+smtp = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
 
 # SMS Client id
 SMS_CLIENT_ID = ""
