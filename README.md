@@ -13,6 +13,30 @@
 ### Saving Violation Photos
 - Get frame, check with the *threshold*, store in the database if *prediction* equal to or more than the *threshold*.
 
+## Database Documents
+### Violations Document
+#### Fields
+- Picture 'Array'
+- Camera id 'Connection with Customization record'
+- Date 'Datetime'
+- Location 'string'
+#### Methods
+- store violation 'POST'
+### Customization Document
+#### Fields
+- Camera rtsp 'string'
+- Location 'string'
+- Supervisor Email 'string'
+- Supervisor Phone 'string'
+- Email OK 'Boolean'
+- Phone OK 'Boolean'
+#### Methods
+- add camera 'POST'
+- delete camera 'DELETE'
+- update camera 'PUT'
+- get camera 'GET'
+- get cameras 'GET'
+
 ## Backend (**DONE**)
 - Connect the backend to key vault and the database. 
 ### Gunicorn
@@ -33,4 +57,4 @@ Will use various templates from the internet.
 - Dynamic or Static.
 - Inside the program or After deployment.
 ### Performance Testing
-- Multi-threading.
+- Multi-threading. (**In Progress**)

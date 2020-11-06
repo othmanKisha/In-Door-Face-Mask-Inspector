@@ -3,25 +3,20 @@ version: "3.8"
 services:
 
   idfmi:
-    build: 
-      context: .
-      dockerfile: Dockerfile
+    build: .
     container_name: idfmi  
     tty: true  
     restart: always  
     environment:
-      - PYTHONDONTWRITEBYTECODE=1
-      - PYTHONUNBUFFERED=1
       - KEY_VAULT_NAME=${KEY_VAULT_NAME}
       - AZURE_CLIENT_ID=${AZURE_CLIENT_ID}
       - AZURE_CLIENT_SECRET=${AZURE_CLIENT_SECRET}
       - AZURE_SUBSCRIPTION_ID=${AZURE_SUBSCRIPTION_ID}
       - AZURE_TENANT_ID=${AZURE_TENANT_ID}  
-      - MONGODB_DATABASE=idfmiDB
+      - MONGODB_DATABASE=IDFMI
       - MONGODB_USERNAME=kfupm_idfmi
       - MONGODB_PASSWORD=idfmi
       - MONGODB_HOSTNAME=mongodb
-      - MONGODB_PORT=27017
     depends_on:
       - db  
     ports:
@@ -38,7 +33,7 @@ services:
     environment:
       - MONGO_INITDB_ROOT_USERNAME=kfupm_idfmi
       - MONGO_INITDB_ROOT_PASSWORD=idfmi
-      - MONGO_INITDB_DATABASE=idfmiDB
+      - MONGO_INITDB_DATABASE=IDFMI
       - MONGODB_DATA_DIR=/data/db
       - MONGODB_LOG_DIR=/dev/null
     ports:
