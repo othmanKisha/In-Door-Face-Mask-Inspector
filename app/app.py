@@ -5,7 +5,7 @@ import requests
 import uuid
 import msal
 import config
-import camera
+from camera import Camera
 
 
 app = Flask(__name__)
@@ -30,7 +30,7 @@ def index():
         offices.append((cam['office'], cam['label']))
         cam_set.add(cam['RTSP'])
     for cam in cam_set:
-        camera.Camera(cam)
+        Camera(cam)
     return render_template('index.html', offices=offices)
 
 
@@ -44,7 +44,7 @@ def create(office, label):
         'office': office,
         'label': label
     })
-    camera.Camera(RTSP)
+    Camera(RTSP)
     return redirect(url_for('index'))
 
 
@@ -62,7 +62,7 @@ def video_feed(office):
     if not session.get("user"):
         return redirect(url_for("login"))
     cam = config.db['cameras'].find_one({'office': office})
-    frame = camera.gen(camera.Camera(cam['RTSP']))
+    frame = gen(Camera(cam['RTSP']))
     return Response(frame, mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
@@ -156,6 +156,16 @@ def _get_token_from_cache(scope=None):
         return result
 
 
+def gen(camera):
+    try:
+        while True:
+            frame = camera.get_frame()
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+    except Exception:
+        yield ''
+
+
 # Used in template
 app.jinja_env.globals.update(_build_auth_url=_build_auth_url)
 
@@ -166,5 +176,5 @@ if __name__ == "__main__":
     for cam in cams:
         if not cam['RTSP'] in cam_set:
             cam_set.add(cam['RTSP'])
-            camera.Camera(cam['RTSP'])
+            Camera(cam['RTSP'])
     app.run(host='0.0.0.0', threaded=True)

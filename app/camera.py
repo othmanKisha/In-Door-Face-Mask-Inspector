@@ -233,16 +233,6 @@ def detect_and_predict_mask(frame, faceNet, maskNet):
     return (locs, preds)
 
 
-def gen(camera):
-    try:
-        while True:
-            frame = camera.get_frame()
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
-    except Exception:
-        yield ''
-
-
 def SendMail(jpg, rtsp):
     # img_data = open(ImgFileName,'rb').read()
     msg = MIMEMultipart()
