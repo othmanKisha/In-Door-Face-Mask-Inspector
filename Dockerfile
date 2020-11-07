@@ -5,10 +5,8 @@ ENV PYTHONDONTWRITEBYTECODE 1
 # Disabling output buffering
 ENV PYTHONUNBUFFERED 1
 
-# Copying the entrypoint shell script file
-COPY entrypoint.sh /entrypoint.sh
-# # Changing the permissions for the entrypoint file
-RUN chmod +x ./entrypoint.sh
+# Copying the gunicorn configuration file
+COPY gunicorn-cfg.py /gunicorn-cfg.py
 
 # Copying the requirements file
 COPY requirements.txt /requirements.txt
@@ -26,4 +24,4 @@ WORKDIR /app
 EXPOSE 5000
 
 # Running Gunicorn
-ENTRYPOINT ["sh", "/entrypoint.sh"]
+ENTRYPOINT ["gunicorn", "--config", "/gunicorn-cfg.py", "app:app"]
