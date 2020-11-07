@@ -10,7 +10,7 @@ exec gunicorn app:app \
       --bind 0.0.0.0:5000 \
       --workers 3 \
       --threads 3 \
-      --worker-class gthread \
+      --worker-class gevent \
       --access-logfile /app/logs/access.log \
       --log-file /app/logs/server.log \
       --timeout 120
