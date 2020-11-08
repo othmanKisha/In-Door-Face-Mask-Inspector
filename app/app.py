@@ -38,7 +38,7 @@ def index():
 def create(office, label):
     if not session.get("user"):
         return redirect(url_for("login"))
-    RTSP = "rtsp://192.168.100.13:8080/h264_ulaw.sdp"
+    RTSP = "rtsp://192.168.1.6:8080/h264_ulaw.sdp"
     config.db['cameras'].insert_one({
         'RTSP': RTSP,
         'office': office,

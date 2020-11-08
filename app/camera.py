@@ -5,6 +5,7 @@ from tensorflow.keras.preprocessing.image import img_to_array
 from email.mime.text import MIMEText
 from email.mime.image import MIMEImage
 from email.mime.multipart import MIMEMultipart
+from datetime import datetime
 import numpy as np
 import cv2
 import imutils
@@ -12,11 +13,9 @@ import gridfs
 import PIL.Image as Image
 import threading
 import time
-import os
 import io
-#ByteIO is better than > Pickle > tostring > etc...
-from datetime import datetime
 import config
+
 try:
     from greenlet import getcurrent as get_ident
 except ImportError:
@@ -24,7 +23,6 @@ except ImportError:
         from thread import get_ident
     except ImportError:
         from _thread import get_ident
-
 
 class CameraEvent(object):
     """An Event-like class that signals all active clients when a new frame is
@@ -188,7 +186,7 @@ class Camera(BaseCamera):
                     else:
                         detected = False
                         SendMail(jpg, Camera.video_source)
-                        StoreImage(jpg)
+                        StoreImage(jpg, "test", config.db)
                 else:
                     detection_timer -= 1
             else:
@@ -258,48 +256,21 @@ def SendMail(jpg, rtsp):
     config.smtp.quit()
 
 
-def StoreImage(jpg):
-    # gridFS instance
-    fs = gridfs.GridFS(config.db)
+def StoreImage(jpg, roomName, db):
+    #gridFS instance
+    fs = gridfs.GridFS(db)
 
-    # read the image as a byte
-    # img = cv2.imread("test.jpg")
+    #read image as PIL image
     pil_image = Image.fromarray(jpg)
 
-    #Convert array to image
+    #get time
+    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    #Convert PIL image to Byte image
     b = io.BytesIO()
     pil_image.save(b, 'jpeg')
     im_bytes = b.getvalue()
     b.close()
 
     #save image into DB.
-    imageID = fs.put(im_bytes)
-
-    #get time
-    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    # print(now)
-
-    #define meta data
-    meta = {
-        'name': 'Violations',
-        'images': [
-            {
-                'imageID': imageID,
-                'time': now
-            }
-        ]
-    }
-
-    #store meta data
-    config.db['Violation_pic'].insert_one(meta)
-
-    # get the image meta data
-    # image = config.db['Violation_pic'].find_one({'name': 'Violations'})['images'][0]
-
-    # # get the image from gridfs
-    # gOut = fs.get(image['imageID'])
-
-    # # convert bytes to ndarray
-    # read_pil_image = Image.open(io.BytesIO(gOut.read()))
-    # array = np.array(read_pil_image)
-    # print(array)
+    fs.put(im_bytes, date=now, room=roomName)
