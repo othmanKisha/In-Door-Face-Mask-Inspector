@@ -1,9 +1,9 @@
 bind = '0.0.0.0:5000'
-workers = 3
-threads = 3
+workers = 2
+threads = 8
 worker_class = 'gevent'
 timeout = 120
-loglevel = 'debug'
 accesslog = '/var/log/gunicorn/access.log'
 acceslogformat ="%(h)s %(l)s %(u)s %(t)s %(r)s %(s)s %(b)s %(f)s %(a)s"
 errorlog =  '/var/log/gunicorn/error.log'
+capture_output = True

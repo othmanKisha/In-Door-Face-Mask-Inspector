@@ -1,0 +1,36 @@
+{% extends "bootstrap/base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+{% block content %}
+<div class="container">
+  <h3>Set up system configuration</h3>
+  <hr>
+  <form action="" method="post" class="form" role="form">
+    {{ form.csrf_token() }}
+
+    <div class="row">
+      <div class="form-group col-md-6">
+        {{ wtf.form_field(form.name_first, class='form-control', placeholder='First name') }}
+      </div>
+      <div class="form-group col-md-6">
+        {{ wtf.form_field(form.name_last, class='form-control', placeholder='Last name') }}
+      </div>
+    </div>
+
+    <div class="form-group">
+      {{ wtf.form_field(form.email, type='email', class='form-control', placeholder='Email Address') }}
+    </div>
+
+    <div class="form-group">
+      {{ wtf.form_field(form.phone_number, class='form-control', placeholder='Phone Number') }}
+    </div>
+
+    <div class="form-group">
+      {{ wtf.form_field(form.number_cams, class='form-control', placeholder='Numbers of Cameras') }}
+    </div>
+
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+  </form>
+  <hr>
+</div>
+{% endblock %}

@@ -1,19 +1,17 @@
-# -*- coding: utf-8 -*-
-# From https://github.com/miguelgrinberg/flask-video-streaming
 from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
 from tensorflow.keras.preprocessing.image import img_to_array
 from email.mime.text import MIMEText
 from email.mime.image import MIMEImage
 from email.mime.multipart import MIMEMultipart
+from threading import Thread, Timer, Event
 from datetime import datetime
-import numpy as np
-import cv2
-import imutils
 import gridfs
-import PIL.Image as Image
-import threading
-import time
+import numpy as np
+import imutils
+import cv2
 import io
+import os
+import time
 import config
 
 try:
@@ -23,6 +21,7 @@ except ImportError:
         from thread import get_ident
     except ImportError:
         from _thread import get_ident
+
 
 class CameraEvent(object):
     """An Event-like class that signals all active clients when a new frame is
@@ -39,7 +38,7 @@ class CameraEvent(object):
             # this is a new client
             # add an entry for it in the self.events dict
             # each entry has two elements, a threading.Event() and a timestamp
-            self.events[ident] = [threading.Event(), time.time()]
+            self.events[ident] = [Event(), time.time()]
         return self.events[ident][0].wait()
 
     def set(self):
@@ -68,28 +67,19 @@ class CameraEvent(object):
 
 
 class BaseCamera(object):
-    thread = {}  # background thread that reads frames from camera
-    frame = {}  # current frame is stored here by background thread
-    last_access = {}  # time of last client access to the camera
-    event = {}
-    running = {}
+    thread = None  # background thread that reads frames from camera
+    frame = None  # current frame is stored here by background thread
+    # last_access = 0  # time of last client access to the camera
+    event = CameraEvent()
 
-    def __init__(self, unique_id=None):
+    def __init__(self):
         """Start the background camera thread if it isn't running yet."""
-        self.unique_id = unique_id
-        BaseCamera.event[self.unique_id] = CameraEvent()
-        BaseCamera.running[self.unique_id] = True
-
-        if self.unique_id not in BaseCamera.thread:
-            BaseCamera.thread[self.unique_id] = None
-
-        if BaseCamera.thread[self.unique_id] is None:
-            BaseCamera.last_access[self.unique_id] = time.time()
+        if BaseCamera.thread is None:
+            # BaseCamera.last_access = time.time()
 
             # start background frame thread
-            BaseCamera.thread[self.unique_id] = threading.Thread(
-                target=self._thread, args=(self.unique_id,))
-            BaseCamera.thread[self.unique_id].start()
+            BaseCamera.thread = Thread(target=self._thread)
+            BaseCamera.thread.start()
 
             # wait until frames are available
             while self.get_frame() is None:
@@ -97,47 +87,36 @@ class BaseCamera(object):
 
     def get_frame(self):
         """Return the current camera frame."""
-        BaseCamera.last_access[self.unique_id] = time.time()
+        # BaseCamera.last_access = time.time()
 
         # wait for a signal from the camera thread
-        BaseCamera.event[self.unique_id].wait()
-        BaseCamera.event[self.unique_id].clear()
+        BaseCamera.event.wait()
+        BaseCamera.event.clear()
 
-        return BaseCamera.frame[self.unique_id]
+        return BaseCamera.frame
 
     @staticmethod
     def frames():
         """"Generator that returns frames from the camera."""
-        raise RuntimeError('Must be implemented by subclasses')
+        raise RuntimeError('Must be implemented by subclasses.')
 
     @classmethod
-    def _thread(cls, unique_id):
+    def _thread(cls):
         """Camera background thread."""
+        print('Starting camera thread.')
         frames_iterator = cls.frames()
         for frame in frames_iterator:
-            BaseCamera.frame[unique_id] = frame
-            BaseCamera.event[unique_id].set()  # send signal to clients
+            BaseCamera.frame = frame
+            BaseCamera.event.set()  # send signal to clients
             time.sleep(0)
 
-            # if there haven't been any clients asking for frames in
+            # if there hasn't been any clients asking for frames in
             # the last 10 seconds then stop the thread
-            if time.time() - BaseCamera.last_access[unique_id] > 10:
-                frames_iterator.close()
-                break
-            if not BaseCamera.running[unique_id]:
-                frames_iterator.close()
-                break
-
-        BaseCamera.thread[unique_id] = None
-        BaseCamera.running[unique_id] = False
-
-    @staticmethod
-    def stop(unique_id):
-        BaseCamera.running[unique_id] = False
-
-    @staticmethod
-    def is_running(unique_id):
-        return BaseCamera.running[unique_id]
+            # if time.time() - BaseCamera.last_access > 10:
+            #     frames_iterator.close()
+            #     print('Stopping camera thread due to inactivity.')
+            #     break
+        # BaseCamera.thread = None
 
 
 class Camera(BaseCamera):
@@ -152,58 +131,55 @@ class Camera(BaseCamera):
     @staticmethod
     def frames():
         camera = cv2.VideoCapture(Camera.video_source)
-        detection_timer = 0
-        detected = False
+        flag = False
 
-        if not camera.isOpened():
-            raise RuntimeError('Could not start camera.')
+        if camera.isOpened():
+            while True:
+                (grabbed, img) = camera.read()
+                if not grabbed:
+                    break
 
-        while True:
-            # read current frame
-            _, img = camera.read()
-            img = imutils.resize(img, width=400)
-            (locs, preds) = detect_and_predict_mask(
-                img, config.FACE_NET, config.MASK_NET)
+                img = imutils.resize(img, width=400)
+                (locs, preds) = detect_and_predict(img)
+                has_violation = False
+                Camera.draw_boxes(img, locs, preds, has_violation)
 
-            violation = False
-            for (box, pred) in zip(locs, preds):
-                (startX, startY, endX, endY) = box
-                (mask, withoutMask) = pred
-                label = "Mask" if mask > withoutMask else "No Mask"
-                violation = True if label == "No Mask" else violation
-                color = (0, 255, 0) if label == "Mask" else (0, 0, 255)
-                label += ": {:.2f}%".format(max(mask, withoutMask) * 100)
-                cv2.putText(img, label, (startX, startY - 10),
-                            cv2.FONT_HERSHEY_SIMPLEX, 0.45, color, 2)
-                cv2.rectangle(img, (startX, startY), (endX, endY), color, 2)
+                jpg = cv2.imencode('.jpg', img)[1]
+                if has_violation and not flag:
+                    flag = True
+                    alert_timer = Timer(60, alert_and_store,
+                                        args=(jpg, Camera.video_source, flag))
+                    alert_timer.start()
 
-            jpg = cv2.imencode('.jpg', img)[1].tobytes()
-            if violation:
-                if detection_timer == 0:
-                    if not detected:
-                        detected = True
-                        detection_timer = 60
-                    else:
-                        detected = False
-                        SendMail(jpg, Camera.video_source)
-                        StoreImage(jpg, "test", config.db)
-                else:
-                    detection_timer -= 1
-            else:
-                detected = False
-                detection_timer = 0
+                io_buf = io.BytesIO(jpg)
+                frame = io_buf.getvalue()
+                io_buf.close()
+                yield frame
 
-            # encode as a jpeg image and return it
-            time.sleep(0.05)
-            yield jpg
+    @staticmethod
+    def draw_boxes(img, locs, preds, has_violation):
+        for (box, pred) in zip(locs, preds):
+            (startX, startY, endX, endY) = box
+            (mask, withoutMask) = pred
+
+            label = "Mask" if mask > withoutMask else "No Mask"
+            has_violation = True if label == "No Mask" else has_violation
+            color = (0, 255, 0) if label == "Mask" else (0, 0, 255)
+            label += ": {:.2f}%".format(max(mask, withoutMask) * 100)
+
+            cv2.putText(img, label, (startX, startY - 10),
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.45, color, 2)
+            cv2.rectangle(img, (startX, startY), (endX, endY), color, 2)
+
+        return img, has_violation    
 
 
-def detect_and_predict_mask(frame, faceNet, maskNet):
+def detect_and_predict(frame):
     (faces, locs, preds) = [], [], []
     (h, w) = frame.shape[:2]
     blob = cv2.dnn.blobFromImage(frame, 1.0, (300, 300), (104.0, 177.0, 123.0))
-    faceNet.setInput(blob)
-    detections = faceNet.forward()
+    config.faceNet.setInput(blob)
+    detections = config.faceNet.forward()
 
     for i in range(0, detections.shape[2]):
         confidence = detections[0, 0, i, 2]
@@ -226,51 +202,45 @@ def detect_and_predict_mask(frame, faceNet, maskNet):
 
     if len(faces) > 0:
         faces = np.array(faces, dtype="float32")
-        preds = maskNet.predict(faces, batch_size=32)
+        preds = config.maskNet.predict(faces, batch_size=32)
 
     return (locs, preds)
 
 
-def SendMail(jpg, rtsp):
-    # img_data = open(ImgFileName,'rb').read()
+def alert_and_store(jpg, source, flag):
+    text = MIMEText("This email is being sent to test the functionality of the program")
+    image = MIMEImage(jpg, name="ViolationPic.jpg")
+
+    cams = config.db['cameras'].find({'RTSP': source})
+    # To = {cam['supervisor_email'] for cam in cams}
+    To = ['o.kisha2014@gmail.com']
+
     msg = MIMEMultipart()
     msg['Subject'] = 'IDFMI Alert'
-    cams = config.db['cameras'].find({'RTSP': rtsp})
-    To = {cam['supervisor_email'] for cam in cams}
-    # To = {'s201651740@kfupm.edu.sa','medo111.2018@gmail.com'}
-
-    text = MIMEText("""
-        This email is being sent to test the functionality of the program
-    """)
+    msg['From'] = config.EMAIL_ADDRESS
+    msg['To'] = To
     msg.attach(text)
-    # image = MIMEImage(img_data, name=os.path.basename(ImgFileName))
-    image = MIMEImage(jpg, name="ViolationPic.jpg")
     msg.attach(image)
-    # password = input(str("Enter your password: "))
 
     config.smtp.ehlo()
     config.smtp.starttls()
     config.smtp.ehlo()
+
     config.smtp.login(config.EMAIL_ADDRESS, config.EMAIL_PASSWORD)
     config.smtp.sendmail(config.EMAIL_ADDRESS, To, msg.as_string())
     config.smtp.quit()
 
+    # searching for the location of the camera
+    camera = config.db['cameras'].find_one({'RTSP': source})
+    roomName = camera['office']
 
-def StoreImage(jpg, roomName, db):
-    #gridFS instance
-    fs = gridfs.GridFS(db)
+    fs = gridfs.GridFS(config.db)  # gridFS instance
+    # converting the image to bytes
+    io_buf = io.BytesIO(jpg)
+    frame = io_buf.getvalue()
+    io_buf.close()
 
-    #read image as PIL image
-    pil_image = Image.fromarray(jpg)
+    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")  # get time
+    fs.put(frame, date=now, room=roomName)  # save image into DB.
 
-    #get time
-    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-    #Convert PIL image to Byte image
-    b = io.BytesIO()
-    pil_image.save(b, 'jpeg')
-    im_bytes = b.getvalue()
-    b.close()
-
-    #save image into DB.
-    fs.put(im_bytes, date=now, room=roomName)
+    flag = False

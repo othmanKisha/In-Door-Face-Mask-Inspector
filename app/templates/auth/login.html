@@ -1,19 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-</head>
-<body>
-    <h1>Microsoft Identity Python Web App</h1>
+{% extends "base.html" %}
+{% block title %} Login {% endblock %}
 
-    <li><a href='{{ auth_url }}'>Sign In</a></li>
+{% block content %}
+<h1>Microsoft Identity Python Web App</h1>
 
-    {% if config.get("B2C_RESET_PASSWORD_AUTHORITY") %}
-    <li><a href='{{_build_auth_url(authority=config["B2C_RESET_PASSWORD_AUTHORITY"])}}'>Reset Password</a></li>
-    {% endif %}
+<li><a href='{{ auth_url }}'>Sign In</a></li>
 
-    <hr>
-    <footer style="text-align: right">Powered by MSAL Python {{ version }}</footer>
-</body>
-</html>
+{% if config.get("B2C_RESET_PASSWORD_AUTHORITY") %}
+<li><a href='{{_build_auth_url(authority=config["B2C_RESET_PASSWORD_AUTHORITY"])}}'>Reset Password</a></li>
+{% endif %}
 
+<hr>
+<footer style="text-align: right">Powered by MSAL Python {{ version }}</footer>
+{% endblock %}

@@ -1,9 +1,14 @@
-from flask import Flask, redirect, render_template, request, session, url_for, Response
-from flask_session import Session  # https://pythonhosted.org/Flask-Session
+from wtforms import SubmitField, StringField, validators, IntegerField, FieldList, FormField
+from flask import Flask, redirect, render_template, request, Response, session, url_for
 from werkzeug.middleware.proxy_fix import ProxyFix
+import flask_monitoringdashboard as dashboard
+from flask_bootstrap import Bootstrap
+from flask_session import Session
+from flask_wtf import FlaskForm
+import functools
 import requests
-import uuid
 import msal
+import uuid
 import config
 from camera import Camera
 
@@ -11,59 +16,170 @@ from camera import Camera
 app = Flask(__name__)
 app.config.from_object(config)
 Session(app)
-
-# This section is needed for url_for("foo", _external=True) to automatically
-# generate http scheme when this sample is running on localhost,
-# and to generate https scheme when it is deployed behind reversed proxy.
-# See also https://flask.palletsprojects.com/en/1.0.x/deploying/wsgi-standalone/#proxy-setups
+Bootstrap(app)
+dashboard.bind(app)
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
 
+class RegForm(FlaskForm):
+    name_first = StringField('First Name', [validators.DataRequired()])
+    name_last = StringField('Last Name', [validators.DataRequired()])
+    email = StringField('Email Address', [
+        validators.DataRequired(),
+        validators.Email(),
+        validators.Length(min=6, max=35)])
+    phone_number = IntegerField('Phone Number', [validators.DataRequired()])
+    number_cams = IntegerField('Numbers of Cameras', [
+                               validators.NumberRange(min=1, max=100)])
+    submit = SubmitField('Submit')
+
+
+class CamsLinks(FlaskForm):
+    """A form for one or more addresses"""
+    name = StringField('unique name', [validators.DataRequired()])
+    location = StringField('location', [validators.DataRequired()])
+    url = StringField('url', [validators.DataRequired()])
+
+
+class GenerateFields(FlaskForm):
+    list = FieldList(FormField(CamsLinks))
+    submit = SubmitField('Submit')
+
+
+def login_required(f):
+    @functools.wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not session.get("user"):
+            return redirect(url_for('login', next=request.url))
+        return f(*args, **kwargs)
+    return decorated_function
+
+
+def UploadCustom(first_name, last_name, email, phone, cams_number):
+    # Clean/Empty Current Customization
+    config.db['customization'].delete_many({})
+    # upload
+    config.db['customization'].insert_one({
+        'name': 'Settings',
+        'Data': [{
+            'name_first': first_name,
+            'name_last': last_name,
+            'Email': email,
+            'Phone_Number': phone,
+            'Number_Cams': cams_number
+        }]})
+
+
+def UploadLinks(cams_data, num_cams):
+    # Clean/Empty Current Customization
+    config.db['customization'].delete_many({'Alias': 'Security'})
+    Cut = []
+    # create dictionary
+    for i in range(int(num_cams)):
+        Cut.append(cams_data[i])
+
+    for i in range(len(Cut)):
+        config.db['customization'].insert_one({
+            'Alias': "Security",
+            'name': Cut[i]['name'],
+            'url': Cut[i]['url'],
+            'location': Cut[i]['location']
+        })
+        
+
+def generate(camera):
+    while True:
+        frame = camera.get_frame()
+        if frame is not None:
+            yield (b'--frame\r\n'
+                    b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+
+
+def _load_cache():
+    cache = msal.SerializableTokenCache()
+    if session.get("token_cache"):
+        cache.deserialize(session["token_cache"])
+    return cache
+
+
+def _save_cache(cache):
+    if cache.has_state_changed:
+        session["token_cache"] = cache.serialize()
+
+
+def _build_msal_app(cache=None, authority=None):
+    return msal.ConfidentialClientApplication(
+        config.CLIENT_ID, authority=authority or config.AUTHORITY,
+        client_credential=config.CLIENT_SECRET, token_cache=cache)
+
+
+def _build_auth_url(authority=None, scopes=None, state=None):
+    return _build_msal_app(authority=authority).get_authorization_request_url(
+        scopes or [],
+        state=state or str(uuid.uuid4()),
+        redirect_uri=url_for("authorized", _external=True))
+
+
+def _get_token_from_cache(scope=None):
+    # This web app maintains one cache per session
+    cache = _load_cache()
+    cca = _build_msal_app(cache=cache)
+    accounts = cca.get_accounts()
+    # So all account(s) belong to the current signed-in user
+    if accounts:
+        result = cca.acquire_token_silent(scope, account=accounts[0])
+        _save_cache(cache)
+        return result
+
+
 @app.route("/")
+@login_required
 def index():
-    if not session.get("user"):
-        return redirect(url_for("login"))
     cams = config.db['cameras'].find({})
-    cam_set = set()
-    offices = []
-    for cam in cams:
-        offices.append((cam['office'], cam['label']))
-        cam_set.add(cam['RTSP'])
-    for cam in cam_set:
-        Camera(cam)
+    offices = [(cam['office'], cam['label']) for cam in cams]
     return render_template('index.html', offices=offices)
 
 
-@app.route("/create/<string:office>/<string:label>")
-def create(office, label):
-    if not session.get("user"):
-        return redirect(url_for("login"))
-    RTSP = "rtsp://192.168.1.6:8080/h264_ulaw.sdp"
-    config.db['cameras'].insert_one({
-        'RTSP': RTSP,
-        'office': office,
-        'label': label
-    })
-    Camera(RTSP)
-    return redirect(url_for('index'))
-
-
 @app.route('/change_office/<string:office>')
+@login_required
 def change_office(office):
-    if not session.get("user"):
-        return redirect(url_for("login"))
     cams = config.db['cameras'].find({})
     offices = [(cam['office'], cam['label']) for cam in cams]
     return render_template('camera/video_feed.html', office=office, offices=offices)
 
 
 @app.route('/video_feed/<string:office>')
+@login_required
 def video_feed(office):
-    if not session.get("user"):
-        return redirect(url_for("login"))
     cam = config.db['cameras'].find_one({'office': office})
-    frame = gen(Camera(cam['RTSP']))
-    return Response(frame, mimetype='multipart/x-mixed-replace; boundary=frame')
+    return Response(generate(Camera(cam['RTSP'])), 
+                    mimetype='multipart/x-mixed-replace; boundary=frame')
+
+
+@app.route('/reg', methods=['GET', 'POST'])
+@login_required
+def registration():
+    form = RegForm(request.form)
+    if request.method == 'POST' and form.validate_on_submit():
+        cams = form.number_cams.data
+        UploadCustom(form.name_first.data, form.name_last.data,
+                     form.email.data, form.phone_number.data, cams)
+        return redirect(url_for('camera', cams=cams))
+    return render_template('customization/registration_custom.html', form=form)
+
+
+@app.route('/cams', methods=['GET', 'POST'])
+@login_required
+def camera():
+    cams = request.args.get('cams')
+    print(cams)
+    form = GenerateFields(request.form)
+    for i in range(int(cams)):
+        form.list.append_entry()
+    if request.method == 'POST':
+        UploadLinks(form.list.data, cams)
+        return 'We confirm your registration!'
+    return render_template('customization/camera_registration.html', form=form)
 
 
 @app.route("/login")
@@ -119,62 +235,6 @@ def authorized():
     return redirect(url_for("index"))
 
 
-def _load_cache():
-    cache = msal.SerializableTokenCache()
-    if session.get("token_cache"):
-        cache.deserialize(session["token_cache"])
-    return cache
-
-
-def _save_cache(cache):
-    if cache.has_state_changed:
-        session["token_cache"] = cache.serialize()
-
-
-def _build_msal_app(cache=None, authority=None):
-    return msal.ConfidentialClientApplication(
-        config.CLIENT_ID, authority=authority or config.AUTHORITY,
-        client_credential=config.CLIENT_SECRET, token_cache=cache)
-
-
-def _build_auth_url(authority=None, scopes=None, state=None):
-    return _build_msal_app(authority=authority).get_authorization_request_url(
-        scopes or [],
-        state=state or str(uuid.uuid4()),
-        redirect_uri=url_for("authorized", _external=True))
-
-
-def _get_token_from_cache(scope=None):
-    # This web app maintains one cache per session
-    cache = _load_cache()
-    cca = _build_msal_app(cache=cache)
-    accounts = cca.get_accounts()
-    # So all account(s) belong to the current signed-in user
-    if accounts:
-        result = cca.acquire_token_silent(scope, account=accounts[0])
-        _save_cache(cache)
-        return result
-
-
-def gen(camera):
-    try:
-        while True:
-            frame = camera.get_frame()
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
-    except Exception:
-        yield ''
-
-
-# Used in template
-app.jinja_env.globals.update(_build_auth_url=_build_auth_url)
-
-
 if __name__ == "__main__":
-    cams = config.db['cameras'].find({})
-    cam_set = set()
-    for cam in cams:
-        if not cam['RTSP'] in cam_set:
-            cam_set.add(cam['RTSP'])
-            Camera(cam['RTSP'])
+    app.jinja_env.globals.update(_build_auth_url=_build_auth_url)
     app.run(host='0.0.0.0', threaded=True)

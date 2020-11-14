@@ -1,12 +1,7 @@
 FROM python:3.8.1
 
-# Disable writing bite code (.pyc and compiled files)
-ENV PYTHONDONTWRITEBYTECODE 1
-# Disabling output buffering
-ENV PYTHONUNBUFFERED 1
-
 # Copying the gunicorn configuration file
-COPY gunicorn-cfg.py /gunicorn-cfg.py
+COPY ./gunicorn/gunicorn.conf.py /gunicorn.conf.py
 
 # Copying the requirements file
 COPY requirements.txt /requirements.txt
@@ -24,4 +19,4 @@ WORKDIR /app
 EXPOSE 5000
 
 # Running Gunicorn
-ENTRYPOINT ["gunicorn", "--config", "/gunicorn-cfg.py", "app:app"]
+ENTRYPOINT ["gunicorn", "--config", "/gunicorn.conf.py", "app:app"]
