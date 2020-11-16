@@ -1,18 +1,17 @@
-from tensorflow.keras.applications.mobilenet_v2 import preprocess_input
-from tensorflow.keras.preprocessing.image import img_to_array
-from email.mime.text import MIMEText
-from email.mime.image import MIMEImage
+from model.utils import decode_bbox, single_class_non_max_suppression
 from email.mime.multipart import MIMEMultipart
+from model.load_model import tf_inference
 from threading import Thread, Timer, Event
+from email.mime.image import MIMEImage
+from email.mime.text import MIMEText
 from datetime import datetime
-import gridfs
 import numpy as np
-import imutils
+import config
+import gridfs
+import time
 import cv2
 import io
 import os
-import time
-import config
 
 try:
     from greenlet import getcurrent as get_ident
@@ -131,84 +130,105 @@ class Camera(BaseCamera):
     @staticmethod
     def frames():
         camera = cv2.VideoCapture(Camera.video_source)
+        height = camera.get(cv2.CAP_PROP_FRAME_HEIGHT)
+        width = camera.get(cv2.CAP_PROP_FRAME_WIDTH)
+        fps = camera.get(cv2.CAP_PROP_FPS)
+        fourcc = cv2.VideoWriter_fourcc(*'XVID')
+        total_frames = camera.get(cv2.CAP_PROP_FRAME_COUNT)
         flag = False
+        status = True
 
         if camera.isOpened():
-            while True:
-                (grabbed, img) = camera.read()
-                if not grabbed:
-                    break
+            while status:
+                (status, img) = camera.read()
+                img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+                if status:
+                    has_violation = False
+                    inference(img,
+                              has_violation,
+                              config.CONFIDENCE,
+                              iou_thresh=0.5,
+                              target_shape=(260, 260),
+                              draw_result=True)
 
-                img = imutils.resize(img, width=400)
-                (locs, preds) = detect_and_predict(img)
-                has_violation = False
-                Camera.draw_boxes(img, locs, preds, has_violation)
+                    jpg = cv2.imencode('.jpg', img)[1]
+                    if has_violation and not flag:
+                        flag = True
+                        alert_timer = Timer(60, alert_and_store,
+                                            args=(jpg, Camera.video_source, flag))
+                        alert_timer.start()
 
-                jpg = cv2.imencode('.jpg', img)[1]
-                if has_violation and not flag:
-                    flag = True
-                    alert_timer = Timer(60, alert_and_store,
-                                        args=(jpg, Camera.video_source, flag))
-                    alert_timer.start()
-
-                io_buf = io.BytesIO(jpg)
-                frame = io_buf.getvalue()
-                io_buf.close()
-                yield frame
-
-    @staticmethod
-    def draw_boxes(img, locs, preds, has_violation):
-        for (box, pred) in zip(locs, preds):
-            (startX, startY, endX, endY) = box
-            (mask, withoutMask) = pred
-
-            label = "Mask" if mask > withoutMask else "No Mask"
-            has_violation = True if label == "No Mask" else has_violation
-            color = (0, 255, 0) if label == "Mask" else (0, 0, 255)
-            label += ": {:.2f}%".format(max(mask, withoutMask) * 100)
-
-            cv2.putText(img, label, (startX, startY - 10),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.45, color, 2)
-            cv2.rectangle(img, (startX, startY), (endX, endY), color, 2)
-
-        return img, has_violation    
+                    io_buf = io.BytesIO(jpg)
+                    frame = io_buf.getvalue()
+                    io_buf.close()
+                    yield frame
 
 
-def detect_and_predict(frame):
-    (faces, locs, preds) = [], [], []
-    (h, w) = frame.shape[:2]
-    blob = cv2.dnn.blobFromImage(frame, 1.0, (300, 300), (104.0, 177.0, 123.0))
-    config.faceNet.setInput(blob)
-    detections = config.faceNet.forward()
+def inference(image,
+              has_violation,
+              conf_thresh=0.5,
+              iou_thresh=0.4,
+              target_shape=(160, 160),
+              draw_result=True
+              ):
+    '''
+    Main function of detection inference
+    :param image: 3D numpy array of image
+    :param conf_thresh: the min threshold of classification probabity.
+    :param iou_thresh: the IOU threshold of NMS
+    :param target_shape: the model input size.
+    :param draw_result: whether to daw bounding box to the image.
+    :param show_result: whether to display the image.
+    :return:
+    '''
+    height, width, _ = image.shape
+    image_resized = cv2.resize(image, target_shape)
+    image_np = image_resized / 255.0
+    image_exp = np.expand_dims(image_np, axis=0)
+    y_bboxes_output, y_cls_output = tf_inference(
+        config.SESS, config.GRAPH, image_exp)
 
-    for i in range(0, detections.shape[2]):
-        confidence = detections[0, 0, i, 2]
+    # remove the batch dimension, for batch is always 1 for inference.
+    y_bboxes = decode_bbox(config.ANCHORS_EXP, y_bboxes_output)[0]
+    y_cls = y_cls_output[0]
+    # To speed up, do single class NMS, not multiple classes NMS.
+    bbox_max_scores = np.max(y_cls, axis=1)
+    bbox_max_score_classes = np.argmax(y_cls, axis=1)
 
-        if confidence > config.CONFIDENCE:
-            box = detections[0, 0, i, 3:7] * np.array([w, h, w, h])
-            (startX, startY, endX, endY) = box.astype("int")
+    # keep_idx is the alive bounding box after nms.
+    keep_idxs = single_class_non_max_suppression(y_bboxes,
+                                                 bbox_max_scores,
+                                                 conf_thresh=conf_thresh,
+                                                 iou_thresh=iou_thresh,
+                                                 )
 
-            (startX, startY) = (max(0, startX), max(0, startY))
-            (endX, endY) = (min(w - 1, endX), min(h - 1, endY))
+    for idx in keep_idxs:
+        conf = float(bbox_max_scores[idx])
+        class_id = bbox_max_score_classes[idx]
+        bbox = y_bboxes[idx]
+        # clip the coordinate, avoid the value exceed the image boundary.
+        xmin = max(0, int(bbox[0] * width))
+        ymin = max(0, int(bbox[1] * height))
+        xmax = min(int(bbox[2] * width), width)
+        ymax = min(int(bbox[3] * height), height)
 
-            face = frame[startY:endY, startX:endX]
-            face = cv2.cvtColor(face, cv2.COLOR_BGR2RGB)
-            face = cv2.resize(face, (224, 224))
-            face = img_to_array(face)
-            face = preprocess_input(face)
-
-            faces.append(face)
-            locs.append((startX, startY, endX, endY))
-
-    if len(faces) > 0:
-        faces = np.array(faces, dtype="float32")
-        preds = config.maskNet.predict(faces, batch_size=32)
-
-    return (locs, preds)
+        if draw_result:
+            if class_id == 0:
+                color = (0, 255, 0)
+            else:
+                has_violation = True
+                color = (0, 0, 255)
+            cv2.rectangle(image, (xmin, ymin), (xmax, ymax), color, 2)
+            cv2.putText(image, "%s: %.2f" % (config.ID2CLASS[class_id], conf), 
+                                            (xmin + 2, ymin - 2),
+                                            cv2.FONT_HERSHEY_SIMPLEX, 0.8, 
+                                            color
+                                            )
 
 
 def alert_and_store(jpg, source, flag):
-    text = MIMEText("This email is being sent to test the functionality of the program")
+    text = MIMEText(
+        "This email is being sent to test the functionality of the program")
     image = MIMEImage(jpg, name="ViolationPic.jpg")
 
     cams = config.db['cameras'].find({'RTSP': source})

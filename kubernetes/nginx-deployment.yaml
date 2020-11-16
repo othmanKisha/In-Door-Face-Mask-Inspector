@@ -1,6 +1,10 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  annotations:
+    kompose.cmd: C:\Program Files\Kubernetes\Kompose\kompose.exe convert
+    kompose.version: 1.21.0 (992df58d8)
+  creationTimestamp: null
   labels:
     io.kompose.service: nginx
   name: nginx
@@ -12,15 +16,23 @@ spec:
   strategy: {}
   template:
     metadata:
+      annotations:
+        kompose.cmd: C:\Program Files\Kubernetes\Kompose\kompose.exe convert
+        kompose.version: 1.21.0 (992df58d8)
+      creationTimestamp: null
       labels:
+        io.kompose.network/web_network: "true"
         io.kompose.service: nginx
     spec:
       containers:
-        - image: nginx:latest
-          name: nginx
-          ports:
-            - containerPort: 80
-          resources: {}
-          tty: true
+      - image: nginx:latest
+        imagePullPolicy: ""
+        name: nginx
+        ports:
+        - containerPort: 80
+        resources: {}
+        tty: true
       restartPolicy: Always
+      serviceAccountName: ""
+      volumes: null
 status: {}

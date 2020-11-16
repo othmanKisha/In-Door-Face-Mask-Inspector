@@ -1,9 +1,10 @@
 from azure.identity import DefaultAzureCredential
 from azure.keyvault.secrets import SecretClient
-from tensorflow.keras.models import load_model
+from model.load_model import load_tf_model
+from model.utils import generate_anchors
 from pymongo import MongoClient
 from smtplib import SMTP
-import cv2
+import numpy as np
 import os
 
 
@@ -48,13 +49,16 @@ smtp = SMTP(SMTP_SERVER, SMTP_PORT)
 
 # [model config]
 CONFIDENCE = 0.5
-DIR = "models"
-FACE = "face_detector"
-MASK = "mask_detector"
-WEIGHTS = "res10_300x300_ssd_iter_140000.caffemodel"
-PROTOTXT = "deploy.prototxt"
-MODEL = "mask_detector.model"
-faceNet = cv2.dnn.readNet(
-    os.path.sep.join([DIR, FACE, PROTOTXT]),
-    os.path.sep.join([DIR, FACE, WEIGHTS]))
-maskNet = load_model(os.path.sep.join([DIR, MASK, MODEL]))
+DIR = "model"
+MODEL = "face_mask_detection.pb"
+SESS, GRAPH = load_tf_model(os.path.join(DIR, MODEL))
+# anchor configuration
+feature_map_sizes = [[33, 33], [17, 17], [9, 9], [5, 5], [3, 3]]
+anchor_sizes = [[0.04, 0.056], [0.08, 0.11], [0.16, 0.22], [0.32, 0.45], [0.64, 0.72]]
+anchor_ratios = [[1, 0.62, 0.42]] * 5
+# generate anchors
+anchors = generate_anchors(feature_map_sizes, anchor_sizes, anchor_ratios)
+# for inference , the batch size is 1, the model output shape is [1, N, 4],
+# so we expand dim for anchors to [1, anchor_num, 4]
+ANCHORS_EXP = np.expand_dims(anchors, axis=0)
+ID2CLASS = {0: 'Mask', 1: 'NoMask'}

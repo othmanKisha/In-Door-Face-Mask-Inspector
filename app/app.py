@@ -152,8 +152,10 @@ def change_office(office):
 @login_required
 def video_feed(office):
     cam = config.db['cameras'].find_one({'office': office})
-    return Response(generate(Camera(cam['RTSP'])), 
-                    mimetype='multipart/x-mixed-replace; boundary=frame')
+    # return Response(generate(Camera(cam['RTSP'])), 
+    #                 mimetype='multipart/x-mixed-replace; boundary=frame')
+    return Response(generate(Camera("rtsp://192.168.100.13:8080/h264_ulaw.sdp")), 
+                    mimetype='multipart/x-mixed-replace; boundary=frame')                
 
 
 @app.route('/reg', methods=['GET', 'POST'])

@@ -116,3 +116,7 @@ logs/
 flask_monitoringdashboard.db
 
 secret.yaml
+
+*_mask_detector.py
+
+dataset/
