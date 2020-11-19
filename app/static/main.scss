@@ -1,0 +1,161 @@
+@import url('https://fonts.googleapis.com/css2?family=Cairo&display=swap');
+
+:root {
+  --global-backColor: #f7f8f9;
+  --global-fback: #efeff0;
+  --global-hoverColor: #212529;
+  --global-color: #343a3f;
+  --global-cardColor: #efeff0;
+  --global-theme-toggle-content: "🌞 LIGHT THEME";
+}
+
+html[theme="dark"] {
+  --global-backColor: #343a3f;
+  --global-fback: #212529;
+  --global-hoverColor: #f7f8f9;
+  --global-color: #efeff0;
+  --global-cardColor: #212529;
+  --global-theme-toggle-content: "🌑 DARK THEME";
+}
+
+$width: 100%;
+$backColor: var(--global-backColor);
+$fback: var(--global-fback);
+$hoverColor: var(--global-hoverColor);
+$color: var(--global-color);
+$cardColor: var(--global-cardColor);
+$toggleContent: var(--global-theme-toggle-content);
+$fontFamily: 'Cairo', sans-serif;
+
+html {
+  height: 100%;
+  width: 100%;
+  transition: all 1s;
+}
+
+body {
+  background-color: $cardColor;
+  opacity: 0.97;
+  height: 100%;
+  width: 100%;
+}
+
+.navbar {
+  transition: all 1s;
+  font-family: $fontFamily;
+  a h3 {
+    color: $hoverColor;
+  }
+}
+
+#home {
+  margin-top: 15px;
+  min-height: 50%;
+  width: 100%;
+  display: block;
+  position: relative;
+  text-align: center;
+  font-family: $fontFamily;
+  transition: all 1s;
+  .card-body input {
+    margin-bottom: 25px;
+    transition: all 1s;
+  }
+  .card-body #modalButton {
+    margin-right: 40px;
+    margin-left: 40px;
+    margin-top: 25px;
+    margin-bottom: 25px;
+    transition: all 1s;
+  }
+}
+
+img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: $width;
+}
+
+.footer {
+  position: relative;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  background-color: $backColor;
+  color: $hoverColor;
+  text-align: center;
+  align-content: center;
+  font-size: large;
+  font-family: $fontFamily;
+  transition: all 1s;
+  .container {
+    padding-top: 2.5rem;
+    padding-bottom: 2.5rem;
+    div div a {
+      color: $color;
+      &:hover {
+        color: $hoverColor;
+        text-decoration: none;
+      }
+    }
+  }
+
+  #Copyrights {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    background-color: $fback;
+    font-family: $fontFamily;
+    transition: all 1s;
+  }
+}
+
+table {
+  transition: all 1s;
+}
+
+.modalTitle {
+  color: $color;
+}
+
+.close {
+  color: $color;
+  &:hover {
+    color: $hoverColor;
+  }
+}
+
+.welcomeText {
+  color: $color;
+}
+
+.modal-content {
+  background-color: $backColor;
+}
+
+.icon-btn {
+  background: transparent; 
+  border: none;
+}
+
+.lbl {
+  color: $color;
+}
+
+.theme-toggle {
+  position: relative;
+  right: 10px;
+  top: 8px;
+  background: transparent;
+  color: $hoverColor;
+  padding: 7px;
+  border-radius: 5px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  transition: all 1s;
+  cursor: pointer;
+}
+
+.theme-toggle::after {
+  content: $toggleContent;
+}

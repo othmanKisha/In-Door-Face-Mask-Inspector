@@ -1,15 +1,15 @@
-from azure.identity import DefaultAzureCredential
-from azure.keyvault.secrets import SecretClient
-from model.load_model import load_tf_model
-from model.utils import generate_anchors
-from pymongo import MongoClient
-from smtplib import SMTP
-import numpy as np
 import os
+import numpy as np
+from smtplib import SMTP
+from pymongo import MongoClient
+from model.utils import generate_anchors
+from model.load_model import load_tf_model
+from azure.keyvault.secrets import SecretClient
+from azure.identity import DefaultAzureCredential
 
 
-SESSION_TYPE = "filesystem"  # for sessions
-SECRET_KEY = b'\xd6\x04\xbdj\xfe\xed$c\x1e@\xad\x0f\x13,@G'  # used for the forms
+# for sessions
+SESSION_TYPE = "filesystem"  
 
 # [keyvault config]
 KEY_VAULT_NAME = os.environ["KEY_VAULT_NAME"]

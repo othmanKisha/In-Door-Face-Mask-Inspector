@@ -1,0 +1,178 @@
+{% macro render_create_security_form() %}
+<div
+  class="modal fade"
+  id="new_sec"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="newSecLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <form action="{{ url_for('create_security') }}" method="POST">
+        <div class="modal-header">
+          <h5 class="modal-title modalTitle" id="newSecLabel">
+            New Security Member Registration
+          </h5>
+          <button
+            type="button"
+            class="close"
+            data-dismiss="modal"
+            aria-label="Close"
+          >
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="form-group col">
+              <label for="first_name" class="lbl">
+                <i class="fa fa-address-book-o"></i> First Name
+              </label>
+              <input
+                name="first_name"
+                placeholder="First Name"
+                type="text"
+                class="form-control bg-light text-dark card-inp"
+              />
+            </div>
+            <div class="form-group col">
+              <label for="last_name" class="lbl">
+                <i class="fa fa-address-book-o"></i> Last Name
+              </label>
+              <input
+                name="last_name"
+                placeholder="Last Name"
+                type="text"
+                class="form-control bg-light text-dark card-inp"
+              />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="email" class="lbl"> <i class="fa fa-envelope"></i> Email </label>
+            <input
+              name="email"
+              type="email"
+              placeholder="example@example.example"
+              class="form-control bg-light text-dark card-inp"
+              required="required"
+              pattern="[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"
+              title="Invalid email"
+            />
+          </div>
+          <div class="form-group">
+            <label for="phone" class="lbl">
+              <i class="fa fa-phone"></i> Phone number
+            </label>
+            <input
+              name="phone"
+              type="text"
+              placeholder="05xxxxxxxx"
+              class="form-control bg-light text-dark card-inp"
+              pattern="[0]{1}[5]{1}[0-9]{8}"
+              title="Invalid number"
+            />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">
+            Close
+          </button>
+          <button type="submit" class="btn btn-primary">
+            Add Security Member
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endmacro %}
+
+
+{% macro render_edit_security_form(id, first_name, last_name, email, phone) %}
+<div
+  class="modal fade"
+  id="edit_sec_{{ id|string }}"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="editSecLabel{{ id|string }}"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <form action="{{ url_for('edit_security', id=id) }}" method="POST">
+        <div class="modal-header">
+          <h5 class="modal-title modalTitle" id="editSecLabel{{ id|string }}">
+            Edit Information of Security Member: {{ first_name }} {{ last_name }}
+          </h5>
+          <button
+            type="button"
+            class="close"
+            data-dismiss="modal"
+            aria-label="Close"
+          >
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="row">
+            <div class="form-group col">
+              <label for="first_name" class="lbl">
+                <i class="fa fa-address-book-o"></i> First Name
+              </label>
+              <input
+                name="first_name"
+                value="{{ first_name }}"
+                type="text"
+                class="form-control bg-light text-dark card-inp"
+              />
+            </div>
+            <div class="form-group col">
+              <label for="last_name" class="lbl">
+                <i class="fa fa-address-book-o"></i> Last Name
+              </label>
+              <input
+                name="last_name"
+                value="{{ last_name }}"
+                type="text"
+                class="form-control bg-light text-dark card-inp"
+              />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="email" class="lbl"> <i class="fa fa-envelope"></i> Email </label>
+            <input
+              name="email"
+              type="email"
+              value="{{ email }}"
+              class="form-control bg-light text-dark card-inp"
+              required="required"
+              pattern="[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$"
+              title="Invalid email"
+            />
+          </div>
+          <div class="form-group">
+            <label for="phone" class="lbl">
+              <i class="fa fa-phone"></i> Phone number
+            </label>
+            <input
+              name="phone"
+              type="text"
+              value="{{ phone }}"
+              class="form-control bg-light text-dark card-inp"
+              pattern="[0]{1}[5]{1}[0-9]{8}"
+              title="Invalid number"
+            />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">
+            Close
+          </button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endmacro %}

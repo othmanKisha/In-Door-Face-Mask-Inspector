@@ -1,44 +1,143 @@
-{% extends "bootstrap/base.html" %}
-{% import "bootstrap/wtf.html" as wtf %}
-
-{% block styles %}
-{{ super() }}
-<link 
-  rel="icon" 
-  type="image/png" 
-  href="{{ url_for('static', filename='/img/icon.png') }}"
-/>
-<link
-  rel="stylesheet"
-  href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
-  integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
-  crossorigin="anonymous"
-/>
-<link
-  rel="stylesheet"
-  href="{{ url_for('static', filename='/css/main.css') }}"
-/>
-{% endblock %}
-
-{% block scripts %}
-{{ super() }}
-<script
-  src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
-  integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
-  crossorigin="anonymous"
-></script>
-<script
-  src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js"
-  integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh"
-  crossorigin="anonymous"
-></script>
-<script
-  src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js"
-  integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ"
-  crossorigin="anonymous"
-></script>
-<script
-  type="text/javascript" 
-  src="{{ url_for('static', filename='/js/main.js') }}"
-></script>
-{% endblock %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    {% block metas %}{% endblock %}
+    <link
+      rel="icon"
+      type="image/png"
+      href="{{ url_for('static', filename='icon.png')}}"
+    />
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+      integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='main.css')}}"
+    />
+    <title>{% block title %} {% endblock %}</title>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for message in messages %}
+          {% set m = message.split('|') %}
+          <div class="alert alert-{{ m[0] }} alert-dismissible fade show" role="alert">
+            {{ m[1] }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}  
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <a class="navbar-brand" href="/"> In Door Face Mask Inspector </a>
+      <ul class="navbar-nav ml-auto">
+        <li class="nav-item">
+          <span id="theme-toggle" class="theme-toggle"></span>
+        </li>
+        <li class="nav-item">
+          {% if not session.get('user') %}
+          <a class="nav-link" href="{{ auth_url }}">
+            <i class="fa fa-sign-in"></i> Sign In
+          </a>
+          {% else %}
+          <a class="nav-link" href="/logout">
+            <i class="fa fa-sign-out"></i> Sign Out
+          </a>
+          {% endif %}
+        </li>
+      </ul>
+    </nav>
+    <div class="card bg-light mb-3" id="home">
+      <div class="card-body">
+        {% block content %} {% endblock %}
+      </div>
+    </div>  
+    <div class="footer">
+      <div class="container">
+        <div class="row">
+          <div class="col">
+            <i class="fa fa-group"></i>
+            Contribution
+          </div>
+          <div class="col">
+            <i class="fa fa-info-circle"></i>
+            Supervisor
+          </div>
+          <div class="col">
+            <i class="fa fa-envelope"></i>
+            Email
+          </div>
+          <div class="col">
+            <i class="fa fa-external-link"></i>
+            Useful Links
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <a href="https://github.com/Alnasser0"> Abdullah Alnasser</a>
+          </div>
+          <div class="col">
+            <a href="https://faculty.kfupm.edu.sa/coe/elrabaa/"> Prof. Muhammad E. S. Elrabaa</a>
+          </div>
+          <div class="col">
+            <a href="#">idfmi255@gmail.com</a>
+          </div>
+          <div class="col">
+            <a href="http://www.kfupm.edu.sa/ar/Default.aspx"> KFUPM</a>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <a href="https://github.com/Mellouh255"> Mahmoud Ellouh</a>
+          </div>
+          <div class="col"></div>
+          <div class="col"></div>
+          <div class="col">
+            <a href="http://www.kfupm.edu.sa/departments/coe/default.aspx"> COE Department</a>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col">
+            <a href="https://github.com/othmanKisha"> Othman Kisha</a>
+          </div>
+          <div class="col"></div>
+          <div class="col"></div>
+          <div class="col">
+            <a href="https://github.com/othmanKisha/In-Door-Face-Mask-Inspector"> Main Repository </a>
+          </div>
+        </div>
+      </div>
+      <div id="Copyrights">@2020 Copyrights - KFUPM-COE</div>
+    </div>
+    <script
+      src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+      integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.3/umd/popper.min.js"
+      integrity="sha384-vFJXuSJphROIrBnz7yo7oB41mKfc8JzQZiCq4NCceLEaO4IHwicKwpJf9c9IpFgh"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.2/js/bootstrap.min.js"
+      integrity="sha384-alpBpkh1PFOepccYVYDB4do5UnbKysX5WZXm3XxPqe5iKTfUKjNkCk9SaVuEZflJ"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      type="text/javascript"
+      src="{{ url_for('static', filename='main.js')}}"
+    ></script>
+  </body>
+</html>

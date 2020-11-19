@@ -1,0 +1,180 @@
+{% macro render_create_camera_form(security) %}
+<div
+  class="modal fade"
+  id="new_cam"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="newCamLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <form action="{{ url_for('create_camera') }}" method="POST">
+        <div class="modal-header">
+          <h5 class="modal-title modalTitle" id="newCamLabel">
+            New Camera Registration
+          </h5>
+          <button
+            type="button"
+            class="close"
+            data-dismiss="modal"
+            aria-label="Close"
+          >
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="supervisor_id" class="lbl">
+              <i class="fa fa-user"></i> Security Member
+            </label>
+            <select
+              class="form-control bg-light text-dark card-inp"
+              id="supervisor_id"
+              name="supervisor_id"
+              required="required"
+            >
+              {% for member in security %}
+              <option value="{{ member['_id']}}">
+                {{ member['first_name'] + " " + member['last_name'] }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="url" class="lbl"> <i class="fa fa-video-camera"></i> RTSP URL </label>
+            <input
+              name="url"
+              type="text"
+              placeholder="rtsp://<username>:<password>@<ip address>/"
+              class="form-control bg-light text-dark card-inp"
+              required="required"
+            />
+          </div>
+          <div class="form-group">
+            <label for="location" class="lbl"> <i class="fa fa-map-marker"></i> Location </label>
+            <input
+              name="location"
+              type="text"
+              placeholder="Floor#-Office#"
+              class="form-control bg-light text-dark card-inp"
+              required="required"
+            />
+          </div>
+          <div class="form-group">
+            <label for="status" class="lbl">
+              <i class="fa fa-question-circle"></i> Status
+            </label>
+            <select class="form-control bg-light text-dark card-inp" id="status" name="status">
+              <option value="Working">Working</option>
+              <option value="Stopped">Stopped</option>
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">
+            Close
+          </button>
+          <button type="submit" class="btn btn-primary">Add Camera</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endmacro %}
+
+
+{% macro render_edit_camera_form(id, supervisor_id, url, location, status, security) %}
+<div
+  class="modal fade"
+  id="edit_cam_{{ id|string}}"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="editCamLabel_{{ id|string }}"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <form action="{{ url_for('edit_camera', id=id) }}" method="POST">
+        <div class="modal-header">
+          <h5 class="modal-title modalTitle" id="editCamLabel_{{ id|string }}">
+            Edit Information of Camera at {{ location }}
+          </h5>
+          <button
+            type="button"
+            class="close"
+            data-dismiss="modal"
+            aria-label="Close"
+          >
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="supervisor_id" class="lbl">
+              <i class="fa fa-user"></i> Security Member
+            </label>
+            <select
+              class="form-control bg-light text-dark card-inp"
+              id="supervisor_id"
+              name="supervisor_id"
+            >
+              {% for member in security %} 
+              {% if member['_id'] == supervisor_id %}
+              <option value="{{ member['_id']}}" selected>
+                {{ member['first_name'] + " " + member['last_name'] }}
+              </option>
+              {% else %}
+              <option value="{{ member['_id']}}">
+                {{ member['first_name'] + " " + member['last_name'] }}
+              </option>
+              {% endif %} 
+              {% endfor %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="url" class="lbl"> <i class="fa fa-video-camera"></i> RTSP URL </label>
+            <input
+              name="url"
+              type="text"
+              value="{{ url }}"
+              class="form-control bg-light text-dark card-inp"
+              required="required"
+            />
+          </div>
+          <div class="form-group">
+            <label for="location" class="lbl"> <i class="fa fa-map-marker"></i> Location </label>
+            <input
+              name="location"
+              type="text"
+              value="{{ location }}"
+              class="form-control bg-light text-dark card-inp"
+              required="required"
+            />
+          </div>
+          <div class="form-group">
+            <label for="status" class="lbl">
+              <i class="fa fa-question-circle"></i> Status
+            </label>
+            <select class="form-control bg-light text-dark card-inp" id="status" name="status">
+              {% if status == 'Working' %}
+              <option value="Working" selected>Working</option>
+              <option value="Stopped">Stopped</option>
+              {% elif status == 'Stopped' %}
+              <option value="Working">Working</option>
+              <option value="Stopped" selected>Stopped</option>
+              {% endif %}
+            </select>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">
+            Close
+          </button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endmacro %}

@@ -1,17 +1,23 @@
-from model.utils import decode_bbox, single_class_non_max_suppression
-from email.mime.multipart import MIMEMultipart
-from model.load_model import tf_inference
-from threading import Thread, Timer, Event
-from email.mime.image import MIMEImage
-from email.mime.text import MIMEText
-from datetime import datetime
-import numpy as np
-import config
-import gridfs
-import time
-import cv2
+# -*- encoding=utf-8 -*-
+# Took and modified the BaseCamera and CameraEvent classes, and changed the Cmaera Class
+# Original Source: https://blog.miguelgrinberg.com/post/flask-video-streaming-revisited
+# Original Code Repository: https://github.com/miguelgrinberg/flask-video-streaming
+# Modified a little bit in inference method from face mask detection repository
+# Code of inference: https://github.com/AIZOOTech/FaceMaskDetection
 import io
 import os
+import cv2
+import time
+import gridfs
+import config
+import numpy as np
+from datetime import datetime
+from email.mime.text import MIMEText
+from email.mime.image import MIMEImage
+from threading import Thread, Timer, Event
+from model.load_model import tf_inference
+from email.mime.multipart import MIMEMultipart
+from model.utils import decode_bbox, single_class_non_max_suppression
 
 try:
     from greenlet import getcurrent as get_ident
@@ -68,14 +74,11 @@ class CameraEvent(object):
 class BaseCamera(object):
     thread = None  # background thread that reads frames from camera
     frame = None  # current frame is stored here by background thread
-    # last_access = 0  # time of last client access to the camera
     event = CameraEvent()
 
     def __init__(self):
         """Start the background camera thread if it isn't running yet."""
         if BaseCamera.thread is None:
-            # BaseCamera.last_access = time.time()
-
             # start background frame thread
             BaseCamera.thread = Thread(target=self._thread)
             BaseCamera.thread.start()
@@ -86,8 +89,6 @@ class BaseCamera(object):
 
     def get_frame(self):
         """Return the current camera frame."""
-        # BaseCamera.last_access = time.time()
-
         # wait for a signal from the camera thread
         BaseCamera.event.wait()
         BaseCamera.event.clear()
@@ -109,26 +110,33 @@ class BaseCamera(object):
             BaseCamera.event.set()  # send signal to clients
             time.sleep(0)
 
-            # if there hasn't been any clients asking for frames in
-            # the last 10 seconds then stop the thread
-            # if time.time() - BaseCamera.last_access > 10:
-            #     frames_iterator.close()
-            #     print('Stopping camera thread due to inactivity.')
-            #     break
-        # BaseCamera.thread = None
-
 
 class Camera(BaseCamera):
     def __init__(self, source=0):
+        """
+        index route
+        :param:
+        :return: 
+        """
         Camera.set_video_source(source)
         super(Camera, self).__init__()
 
     @staticmethod
     def set_video_source(source):
+        """
+        index route
+        :param:
+        :return: 
+        """
         Camera.video_source = source
 
     @staticmethod
     def frames():
+        """
+        index route
+        :param:
+        :return: 
+        """
         camera = cv2.VideoCapture(Camera.video_source)
         height = camera.get(cv2.CAP_PROP_FRAME_HEIGHT)
         width = camera.get(cv2.CAP_PROP_FRAME_WIDTH)
@@ -227,13 +235,18 @@ def inference(image,
 
 
 def alert_and_store(jpg, source, flag):
+    """
+    index route
+    :param:
+    :return: 
+    """
     text = MIMEText(
         "This email is being sent to test the functionality of the program")
     image = MIMEImage(jpg, name="ViolationPic.jpg")
 
-    cams = config.db['cameras'].find({'RTSP': source})
-    # To = {cam['supervisor_email'] for cam in cams}
-    To = ['o.kisha2014@gmail.com']
+    cam = config.db['cameras'].find_one({'url': source})
+    sec = config.db['security'].find_one({'_id': cam['supervisor_id']})
+    To = [sec['email']]
 
     msg = MIMEMultipart()
     msg['Subject'] = 'IDFMI Alert'
@@ -251,8 +264,7 @@ def alert_and_store(jpg, source, flag):
     config.smtp.quit()
 
     # searching for the location of the camera
-    camera = config.db['cameras'].find_one({'RTSP': source})
-    roomName = camera['office']
+    roomName = cam['location']
 
     fs = gridfs.GridFS(config.db)  # gridFS instance
     # converting the image to bytes
@@ -264,3 +276,18 @@ def alert_and_store(jpg, source, flag):
     fs.put(frame, date=now, room=roomName)  # save image into DB.
 
     flag = False
+
+
+def generate(camera):
+    """
+    index route
+    :param:
+    :return: 
+    """
+    while True:
+        frame = camera.get_frame()
+        if frame is not None:
+            yield (b'--frame\r\n'
+                   b'Content-Type: image/jpeg\r\n\r\n' + 
+                   frame + b'\r\n\r\n'
+                   )

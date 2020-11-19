@@ -1,0 +1,151 @@
+@charset "UTF-8";
+@import url("https://fonts.googleapis.com/css2?family=Cairo&display=swap");
+:root {
+  --global-backColor: #f7f8f9;
+  --global-fback: #efeff0;
+  --global-hoverColor: #212529;
+  --global-color: #343a3f;
+  --global-cardColor: #efeff0;
+  --global-theme-toggle-content: "🌞 LIGHT THEME";
+}
+
+html[theme=dark] {
+  --global-backColor: #343a3f;
+  --global-fback: #212529;
+  --global-hoverColor: #f7f8f9;
+  --global-color: #efeff0;
+  --global-cardColor: #212529;
+  --global-theme-toggle-content: "🌑 DARK THEME";
+}
+
+html {
+  height: 100%;
+  width: 100%;
+  transition: all 1s;
+}
+
+body {
+  background-color: var(--global-cardColor);
+  opacity: 0.97;
+  height: 100%;
+  width: 100%;
+}
+
+.navbar {
+  transition: all 1s;
+  font-family: "Cairo", sans-serif;
+}
+.navbar a h3 {
+  color: var(--global-hoverColor);
+}
+
+#home {
+  margin-top: 15px;
+  min-height: 50%;
+  width: 100%;
+  display: block;
+  position: relative;
+  text-align: center;
+  font-family: "Cairo", sans-serif;
+  transition: all 1s;
+}
+#home .card-body input {
+  margin-bottom: 25px;
+  transition: all 1s;
+}
+#home .card-body #modalButton {
+  margin-right: 40px;
+  margin-left: 40px;
+  margin-top: 25px;
+  margin-bottom: 25px;
+  transition: all 1s;
+}
+
+img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
+}
+
+.footer {
+  position: relative;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  background-color: var(--global-backColor);
+  color: var(--global-hoverColor);
+  text-align: center;
+  align-content: center;
+  font-size: large;
+  font-family: "Cairo", sans-serif;
+  transition: all 1s;
+}
+.footer .container {
+  padding-top: 2.5rem;
+  padding-bottom: 2.5rem;
+}
+.footer .container div div a {
+  color: var(--global-color);
+}
+.footer .container div div a:hover {
+  color: var(--global-hoverColor);
+  text-decoration: none;
+}
+.footer #Copyrights {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  background-color: var(--global-fback);
+  font-family: "Cairo", sans-serif;
+  transition: all 1s;
+}
+
+table {
+  transition: all 1s;
+}
+
+.modalTitle {
+  color: var(--global-color);
+}
+
+.close {
+  color: var(--global-color);
+}
+.close:hover {
+  color: var(--global-hoverColor);
+}
+
+.welcomeText {
+  color: var(--global-color);
+}
+
+.modal-content {
+  background-color: var(--global-backColor);
+}
+
+.icon-btn {
+  background: transparent;
+  border: none;
+}
+
+.lbl {
+  color: var(--global-color);
+}
+
+.theme-toggle {
+  position: relative;
+  right: 10px;
+  top: 8px;
+  background: transparent;
+  color: var(--global-hoverColor);
+  padding: 7px;
+  border-radius: 5px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  transition: all 1s;
+  cursor: pointer;
+}
+
+.theme-toggle::after {
+  content: var(--global-theme-toggle-content);
+}
