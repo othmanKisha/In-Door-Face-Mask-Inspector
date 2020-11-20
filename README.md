@@ -114,10 +114,10 @@ You can check microsoft's documentation on how to make a project with azure acti
 
     Link:https://github.com/rebremer/ms-identity-python-webapp-backend
 ## Authors
-### [Abdullah Alnasser](https://github.com/Alnasser0)
+- [Abdullah Alnasser](https://github.com/Alnasser0)
 
-### [Mahmoud Ellouh](https://github.com/Mellouh255)
+- [Mahmoud Ellouh](https://github.com/Mellouh255)
 
-### [Othman Kisha](https://github.com/othmanKisha)    
+- [Othman Kisha](https://github.com/othmanKisha)    
 ## License
-### [MIT](https://github.com/othmanKisha/In-Door-Face-Mask-Inspector/blob/master/LICENSE)
+[MIT](https://github.com/othmanKisha/In-Door-Face-Mask-Inspector/blob/master/LICENSE)
