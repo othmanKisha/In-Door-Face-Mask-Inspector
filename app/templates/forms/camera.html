@@ -35,9 +35,9 @@
               required="required"
             >
               {% for member in security %}
-              <option value="{{ member['_id']}}">
-                {{ member['first_name'] + " " + member['last_name'] }}
-              </option>
+                <option value="{{ member['_id']}}">
+                  {{ member['first_name'] + " " + member['last_name'] }}
+                </option>
               {% endfor %}
             </select>
           </div>
@@ -120,20 +120,22 @@
               name="supervisor_id"
             >
               {% for member in security %} 
-              {% if member['_id'] == supervisor_id %}
-              <option value="{{ member['_id']}}" selected>
-                {{ member['first_name'] + " " + member['last_name'] }}
-              </option>
-              {% else %}
-              <option value="{{ member['_id']}}">
-                {{ member['first_name'] + " " + member['last_name'] }}
-              </option>
-              {% endif %} 
+                {% if member['_id'] == supervisor_id %}
+                  <option value="{{ member['_id']}}" selected>
+                    {{ member['first_name'] + " " + member['last_name'] }}
+                  </option>
+                {% else %}
+                  <option value="{{ member['_id']}}">
+                    {{ member['first_name'] + " " + member['last_name'] }}
+                  </option>
+                {% endif %} 
               {% endfor %}
             </select>
           </div>
           <div class="form-group">
-            <label for="url" class="lbl"> <i class="fa fa-video-camera"></i> RTSP URL </label>
+            <label for="url" class="lbl"> 
+              <i class="fa fa-video-camera"></i> RTSP URL 
+            </label>
             <input
               name="url"
               type="text"
@@ -143,7 +145,9 @@
             />
           </div>
           <div class="form-group">
-            <label for="location" class="lbl"> <i class="fa fa-map-marker"></i> Location </label>
+            <label for="location" class="lbl"> 
+              <i class="fa fa-map-marker"></i> Location 
+            </label>
             <input
               name="location"
               type="text"
@@ -156,13 +160,17 @@
             <label for="status" class="lbl">
               <i class="fa fa-question-circle"></i> Status
             </label>
-            <select class="form-control bg-light text-dark card-inp" id="status" name="status">
+            <select 
+              class="form-control bg-light text-dark card-inp" 
+              id="status" 
+              name="status"
+            >
               {% if status == 'Working' %}
-              <option value="Working" selected>Working</option>
-              <option value="Stopped">Stopped</option>
+                <option value="Working" selected>Working</option>
+                <option value="Stopped">Stopped</option>
               {% elif status == 'Stopped' %}
-              <option value="Working">Working</option>
-              <option value="Stopped" selected>Stopped</option>
+                <option value="Working">Working</option>
+                <option value="Stopped" selected>Stopped</option>
               {% endif %}
             </select>
           </div>

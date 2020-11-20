@@ -1,12 +1,42 @@
 # In Door Face Mask Inspector (IDFMI) 
 ## Description
-### Overview
-### Project Tree
+### 1. Overview
+This is a project that aims to allow the return of working environment in indoor offices.
+
+It focuses on reading live streams for ip cameras in enterprise environment,
+after that, it applies a face mask detection model using the state-of-art Artificial Neural Networks.
+
+In addition to detection, it also provides a customization platform for surveillence cameras.
+
+Another service provided from the system is alerting security members via email. 
+### 2. Project Architecture
+The project consists of 3 containers as follow:
+
+```bash
+idfmi: Contains the Flask application and gunicorn application server
+nginx: Contains the Nginx web server
+mongo: Contains the MongoDB database
+```
+
+Some info about the stack used:
+
+```bash
+Python version: 3.8.1
+Web framework:  Flask
+Database:       MongoDB (Using the pymongo driver)
+App server:     gunicorn
+Worker class:   gevent
+Web server:     Nginx
+Front end:      Bootsrap4, JQuery
+```
+### 3. Project Tree
+The following is how the files are structured inside the project:
 
     In-Door-Face-Mask-Inspector/
     │   .gitignore
     │   docker-compose.yml
     │   Dockerfile
+    │   LICENSE
     │   README.md
     │   requirements.txt
     ├───app/
@@ -38,7 +68,7 @@
             nginx.conf
     
 ## Requirements
-### Docker
+### 1. Docker
 Since the project is containerized, then the only important dependency is to have docker and docker compose installed, installation guides are as follows:
 - Docker Desktop for Windows: https://docs.docker.com/docker-for-windows/install/ 
 - Docker Desktop for Mac OS: https://docs.docker.com/docker-for-mac/install/
@@ -46,13 +76,14 @@ Since the project is containerized, then the only important dependency is to hav
 - Docker-Compose for linux: https://docs.docker.com/compose/install/
 
 Notice that for Windows and Mac you should only install docker desktop, which will download docker engine and docker-compose by default.
-### Microsoft Azure Subscription
+### 2. Microsoft Azure Subscription 
 This is a requirement for the demo only to simulate the working environment with respect to authentication, authorization, and Secrets.
 
-- Azure Active Directory
-- Azure KeyVault
-
 You can check microsoft's documentation on how to make a project with azure active directory and keyvault.
+
+- Azure Active Directory: https://azure.microsoft.com/en-us/services/active-directory/#documentation
+
+- Azure KeyVault: https://azure.microsoft.com/en-us/services/key-vault/#documentation
 
 ## Installation
 - clone the repository:
@@ -64,7 +95,7 @@ You can check microsoft's documentation on how to make a project with azure acti
 - after cloning the repo, go to the project directory:
 
     ```bash
-    cd In-Door-Face-Mask-Inspector-master
+    cd In-Door-Face-Mask-Inspector
     ```
 - run docker-compose command:
 
@@ -72,12 +103,6 @@ You can check microsoft's documentation on how to make a project with azure acti
     docker-compose up -d
     ```
 - now you can view the website by typing `localhost` on the browser.   
-## Authors
-### [Abdullah Alnasser](https://github.com/Alnasser0)
-
-### [Mahmoud Ellouh](https://github.com/Mellouh255)
-
-### [Othman Kisha](https://github.com/othmanKisha)
 ## Acknowledgment
 - Face Mask Detection Model by [AIZOOTech](https://github.com/AIZOOTech)
 
@@ -88,5 +113,11 @@ You can check microsoft's documentation on how to make a project with azure acti
 - Azure Active Directory with Flask by [René Bremer](https://github.com/rebremer)
 
     Link:https://github.com/rebremer/ms-identity-python-webapp-backend
+## Authors
+### [Abdullah Alnasser](https://github.com/Alnasser0)
+
+### [Mahmoud Ellouh](https://github.com/Mellouh255)
+
+### [Othman Kisha](https://github.com/othmanKisha)    
 ## License
 ### [MIT](https://github.com/othmanKisha/In-Door-Face-Mask-Inspector/blob/master/LICENSE)

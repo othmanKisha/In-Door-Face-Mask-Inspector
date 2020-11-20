@@ -1,14 +1,12 @@
 # -*- encoding=utf-8 -*-
 # Code from this Repository: https://github.com/AIZOOTech/FaceMaskDetection
 import os
-import config
 import numpy as np
 import tensorflow as tf
 if tf.__version__ > '2':
     import tensorflow.compat.v1 as tf  
 
 
-PATH_TO_TENSORFLOW_MODEL = os.path.join(config.DIR, config.MODEL)
 
 def load_tf_model(tf_model_path):
     '''

@@ -6,7 +6,15 @@ from flask_session import Session
 from camera import Camera, generate
 import flask_monitoringdashboard as dashboard
 from werkzeug.middleware.proxy_fix import ProxyFix
-from flask import Flask, flash, redirect, render_template, request, Response, session, url_for
+from flask import (Flask, 
+                   flash, 
+                   redirect, 
+                   render_template, 
+                   request, 
+                   Response, 
+                   session, 
+                   url_for
+                   )
                    
 
 app = Flask(__name__)
@@ -26,42 +34,34 @@ def index():
     """
     index route
     :param:
-    :return: home template which takes the list of all security members in addition
-             the list of all cameras where it also receives the first and last name
-             of the camera supervisor.
+    :return: home template which takes the list of all security 
+             members in addition the list of all cameras.
     """
-    args = []
-    camera = cameras_collection.find({})
-    security = security_collection.find({})
-    for cam in camera:
-        name = ""
-        for sec in security:
-            if sec["_id"] == cam["supervisor_id"]:
-                name = f"{sec['first_name']} {sec['last_name']}"
-                break
-        args.append({
-            "_id": cam["_id"],
-            "location": cam["location"],
-            "status": cam["status"],
-            "url": cam["url"],
-            "security_member": name,
-            "supervisor_id": cam['supervisor_id']
-        })
+    cameras = list(cameras_collection.find({}))
+    security = list(security_collection.find({}))
     return render_template('pages/home.html', 
-                            args=args, 
+                            cameras=cameras, 
                             security=security
                             )
 
 
-@app.route("/create_camera", methods=['POST'])
+@app.route("/create/camera", methods=['POST'])
 @auth.login_required
 def create_camera():
     """
-    index route
-    :param:
-    :return: 
+    create camera route
+    :param location: the location of the camera retreived from 
+                     the form.
+    :param url: the rtsp url of the camera retreived from the 
+                     form.
+    :param status: the status (Working, Stopped) of the camera 
+                   retreived from the form.
+    :param supervisor: the _id of security memeber selected in 
+                       the form.
+    :return redirect: go to root route with flash of success or 
+                      failure. 
     """
-    _id = uuid.uuid4()
+    _id = uuid.uuid4() # generate a unique id for the record
     data = request.form.copy()
     try:
         cameras_collection.insert_one({
@@ -79,7 +79,7 @@ def create_camera():
         return redirect(url_for("index"))
 
 
-@app.route("/create_security", methods=['POST'])
+@app.route("/create/security", methods=['POST'])
 @auth.login_required
 def create_security():
     """
@@ -104,7 +104,7 @@ def create_security():
         return redirect(url_for("index"))
 
 
-@app.route("/edit_camera/<uuid:id>", methods=['POST'])
+@app.route("/edit/camera/<uuid:id>", methods=['POST'])
 @auth.login_required
 def edit_camera(id):
     """
@@ -127,7 +127,7 @@ def edit_camera(id):
         return redirect(url_for("index"))
 
 
-@app.route("/edit_security/<uuid:id>", methods=['POST'])
+@app.route("/edit/security/<uuid:id>", methods=['POST'])
 @auth.login_required
 def edit_security(id):
     """
@@ -150,7 +150,7 @@ def edit_security(id):
         return redirect(url_for("index"))
 
 
-@app.route("/delete_camera/<uuid:id>", methods=['POST'])
+@app.route("/delete/camera/<uuid:id>", methods=['POST'])
 @auth.login_required
 def delete_camera(id):
     """
@@ -167,7 +167,7 @@ def delete_camera(id):
         return redirect(url_for("index"))
 
 
-@app.route("/delete_security/<uuid:id>", methods=['POST'])
+@app.route("/delete/security/<uuid:id>", methods=['POST'])
 @auth.login_required
 def delete_security(id):
     """
@@ -176,6 +176,11 @@ def delete_security(id):
     :return: 
     """
     try:
+        cameras_collection.update_many(
+            {'supervisor_id': str(id)}, 
+            {'$set': {
+                'supervisor_id': -1
+            }})
         security_collection.delete_one({"_id": id})
         flash(f"success|Security member has been successfully deleted.")
     except:
@@ -184,7 +189,7 @@ def delete_security(id):
         return redirect(url_for("index"))
 
 
-@app.route('/video_feed/<uuid:id>')
+@app.route('/video/feed/<uuid:id>')
 @auth.login_required
 def video_feed(id):
     """

@@ -49,6 +49,7 @@ services:
       - 27017:27017
     volumes:
       - mongodbdata:/data/db
+      - ./logs/mongodb/:/var/log/mongodb/
 
   nginx:
     image: nginx:latest
@@ -63,7 +64,7 @@ services:
       - 80:80
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
-      - ./logs/nginx/:/var/log/nginx
+      - ./logs/nginx/:/var/log/nginx/
 
 networks:
   db_network:

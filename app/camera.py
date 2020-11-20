@@ -32,7 +32,6 @@ class CameraEvent(object):
     """An Event-like class that signals all active clients when a new frame is
     available.
     """
-
     def __init__(self):
         self.events = {}
 
@@ -149,7 +148,6 @@ class Camera(BaseCamera):
         if camera.isOpened():
             while status:
                 (status, img) = camera.read()
-                img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
                 if status:
                     has_violation = False
                     inference(img,
@@ -157,13 +155,16 @@ class Camera(BaseCamera):
                               config.CONFIDENCE,
                               iou_thresh=0.5,
                               target_shape=(260, 260),
-                              draw_result=True)
+                              draw_result=True
+                              )
 
                     jpg = cv2.imencode('.jpg', img)[1]
                     if has_violation and not flag:
                         flag = True
-                        alert_timer = Timer(60, alert_and_store,
-                                            args=(jpg, Camera.video_source, flag))
+                        alert_timer = Timer(60, 
+                                            alert_and_store,
+                                            args=(jpg, Camera.video_source, flag)
+                                            )
                         alert_timer.start()
 
                     io_buf = io.BytesIO(jpg)
@@ -194,7 +195,8 @@ def inference(image,
     image_np = image_resized / 255.0
     image_exp = np.expand_dims(image_np, axis=0)
     y_bboxes_output, y_cls_output = tf_inference(
-        config.SESS, config.GRAPH, image_exp)
+        config.SESS, config.GRAPH, image_exp
+        )
 
     # remove the batch dimension, for batch is always 1 for inference.
     y_bboxes = decode_bbox(config.ANCHORS_EXP, y_bboxes_output)[0]
@@ -240,28 +242,38 @@ def alert_and_store(jpg, source, flag):
     :param:
     :return: 
     """
-    text = MIMEText(
-        "This email is being sent to test the functionality of the program")
-    image = MIMEImage(jpg, name="ViolationPic.jpg")
-
     cam = config.db['cameras'].find_one({'url': source})
-    sec = config.db['security'].find_one({'_id': cam['supervisor_id']})
-    To = [sec['email']]
+    if cam['supervisor_id'] != -1:
+        sec = config.db['security'].find_one({'_id': cam['supervisor_id']})
+        To = [sec['email']]
 
-    msg = MIMEMultipart()
-    msg['Subject'] = 'IDFMI Alert'
-    msg['From'] = config.EMAIL_ADDRESS
-    msg['To'] = To
-    msg.attach(text)
-    msg.attach(image)
+        msg = MIMEMultipart()
+        msg['Subject'] = 'IDFMI Alert'
+        msg['From'] = config.EMAIL_ADDRESS
+        msg['To'] = To
+        text = MIMEText(
+            f"""
+            Dear Mr. {sec['last_name']},
 
-    config.smtp.ehlo()
-    config.smtp.starttls()
-    config.smtp.ehlo()
+            We have detected a violation on {cam['location']}. You can find
+            the violation picture attached with this email. Please check
+            the picture.
 
-    config.smtp.login(config.EMAIL_ADDRESS, config.EMAIL_PASSWORD)
-    config.smtp.sendmail(config.EMAIL_ADDRESS, To, msg.as_string())
-    config.smtp.quit()
+            regards,
+            IDFMI Team
+            """
+            )
+        image = MIMEImage(jpg, name="ViolationPic.jpg")
+        msg.attach(text)
+        msg.attach(image)
+
+        config.smtp.ehlo()
+        config.smtp.starttls()
+        config.smtp.ehlo()
+
+        config.smtp.login(config.EMAIL_ADDRESS, config.EMAIL_PASSWORD)
+        config.smtp.sendmail(config.EMAIL_ADDRESS, To, msg.as_string())
+        config.smtp.quit()
 
     # searching for the location of the camera
     roomName = cam['location']

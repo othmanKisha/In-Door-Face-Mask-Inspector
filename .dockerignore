@@ -1,0 +1,7 @@
+.git
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+*_mask_detector.py
+dataset/

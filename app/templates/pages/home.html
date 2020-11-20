@@ -5,231 +5,236 @@
 {% block title %} Home {% endblock %} 
 
 {% block content %}
-<button
-  type="button"
-  id="modalButton"
-  class="btn btn-light card-btn"
-  data-toggle="modal"
-  data-target="#new_cam"
->
-  <i class="fa fa-plus-square"></i>
-  Add New Camera
-</button>
-{{ render_create_camera_form(security=security) }}
-<button
-  type="button"
-  id="modalButton"
-  class="btn btn-light card-btn"
-  data-toggle="modal"
-  data-target="#new_sec"
->
-  <i class="fa fa-user-plus"></i>
-  Add New Security Member
-</button>
-{{ render_create_security_form() }}
-<button
-  type="button"
-  id="modalButton"
-  class="btn btn-light card-btn"
-  data-toggle="modal"
-  data-target="#view_sec"
->
-  <i class="fa fa-users"></i>
-  View Security Members
-</button>
-<div
-  class="modal fade"
-  id="view_sec"
-  tabindex="-1"
-  role="dialog"
-  aria-labelledby="viewSecLabel"
-  aria-hidden="true"
->
-  <div
-    class="modal-dialog modal-dialog-scrollable modal-lg mdContent"
-    role="document"
+  <button
+    type="button"
+    id="modalButton"
+    class="btn btn-light card-btn"
+    data-toggle="modal"
+    data-target="#new_cam"
   >
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title modalTitle" id="viewSecLabel">
-          Security Members
-        </h5>
-        <button
-          type="button"
-          class="close"
-          data-dismiss="modal"
-          aria-label="Close"
-        >
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <table class="table table-striped table-light card-tbl">
-          <thead>
-            <tr>
-              <th scope="col">First Name</th>
-              <th scope="col">Last Name</th>
-              <th scope="col">Email</th>
-              <th scope="col">Phone Number</th>
-              <th scope="col"><i class="fa fa-ellipsis-v"></i></th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for member in security %}
-            <tr>
-              <td>{{ member['first_name'] }}</td>
-              <td>{{ member['last_name'] }}</td>
-              <td>{{ member['email'] }}</td>
-              <td>{{ member['phone'] }}</td>
-              <td>
-                <form>
-                  <button
-                    type="button"
-                    class="btn btn-light card-btn icon-btn"
-                    data-toggle="modal"
-                    data-target="#edit_sec_{{ member['_id']|string }}"
-                  >
-                    <i class="fa fa-edit"></i>
-                  </button>
-                  {{ render_edit_security_form(id=member['_id'],
-                                               first_name=member['first_name'],
-                                               last_name=member['last_name'], 
-                                               email=member['email'],
-                                               phone=member['phone']) }}
-                </form>
-                <form
-                  action="{{ url_for('delete_security', id=member['_id']) }}"
-                  method="POST"
-                >
-                  <button type="submit" class="btn btn-light card-btn icon-btn">
-                    <i class="fa fa-trash"></i>
-                  </button>
-                </form>
-              </td>
-            </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-        {% if security|length < 1 %}
-        <h3 class="welcomeText">There is no any security member registered</h3>
-        {% endif %}
-      </div>
-      <div class="modal-footer"></div>
-    </div>
-  </div>
-</div>
-<input
-  class="form-control bg-light text-dark card-inp"
-  type="search"
-  id="searchinp"
-  placeholder="Search"
-  aria-label="Search"
-/>
-<table class="table table-striped table-light card-tbl">
-  <thead>
-    <tr>
-      <th scope="col">Location</th>
-      <th scope="col">Security Member</th>
-      <th scope="col">Status</th>
-      <th scope="col"><i class="fa fa-ellipsis-v"></i></th>
-    </tr>
-  </thead>
-  <tbody id="tableBody">
-    {% for arg in args %}
-    <tr>
-      <td>
-        {{ arg['location'] }} 
-        {% if arg['status'] == "Working" %}
-        <button
-          type="button"
-          class="btn btn-light card-btn icon-btn"
-          data-toggle="modal"
-          data-target="#{{arg['_id']}}"
-        >
-          <i class="fa fa-video-camera"></i>
-        </button>
-        <div
-          class="modal fade"
-          id="{{ arg['_id'] }}"
-          tabindex="-1"
-          role="dialog"
-          aria-labelledby="label"
-          aria-hidden="true"
-        >
-          <div
-            class="modal-dialog modal-dialog-scrollable modal-lg mdContent"
-            role="document"
-          >
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title modalTitle" id="label">
-                  Cam at {{ arg['location'] }}
-                </h5>
-                <button
-                  type="button"
-                  class="close"
-                  data-dismiss="modal"
-                  aria-label="Close"
-                >
-                  <span aria-hidden="true">&times;</span>
-                </button>
-              </div>
-              <div class="modal-body">
-                <img
-                  id="bg"
-                  class="center"
-                  src="{{ url_for('video_feed', id=arg['_id']) }}"
-                />
-              </div>
-              <div class="modal-footer"></div>
-            </div>
-          </div>
-        </div>
-        {% endif %}
-      </td>
-      <td>{{ arg['security_member'] }}</td>
-      <td>
-        {{ arg['status'] }} 
-        {% if arg['status'] == "Working" %}
-        <i class="fa fa-check-circle" style="color: green"></i>
-        {% elif arg['status'] == "Stopped" %}
-        <i class="fa fa-check-circle" style="color: red"></i>
-        {% endif %}
-      </td>
-      <td>
-        <form>
+    <i class="fa fa-plus-square"></i>
+    Add New Camera
+  </button>
+  {{ render_create_camera_form(security=security) }}
+  <button
+    type="button"
+    id="modalButton"
+    class="btn btn-light card-btn"
+    data-toggle="modal"
+    data-target="#new_sec"
+  >
+    <i class="fa fa-user-plus"></i>
+    Add New Security Member
+  </button>
+  {{ render_create_security_form() }}
+  <button
+    type="button"
+    id="modalButton"
+    class="btn btn-light card-btn"
+    data-toggle="modal"
+    data-target="#view_sec"
+  >
+    <i class="fa fa-users"></i>
+    View Security Members
+  </button>
+  <div
+    class="modal fade"
+    id="view_sec"
+    tabindex="-1"
+    role="dialog"
+    aria-labelledby="viewSecLabel"
+    aria-hidden="true"
+  >
+    <div
+      class="modal-dialog modal-dialog-scrollable modal-lg mdContent"
+      role="document"
+    >
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title modalTitle" id="viewSecLabel">
+            Security Members
+          </h5>
           <button
             type="button"
-            class="btn btn-light card-btn icon-btn"
-            data-toggle="modal"
-            data-target="#edit_cam_{{ arg['_id']|string }}"
+            class="close"
+            data-dismiss="modal"
+            aria-label="Close"
           >
-            <i class="fa fa-edit"></i>
+            <span aria-hidden="true">&times;</span>
           </button>
-          {{ render_edit_camera_form(id=arg['_id'],
-                                     supervisor_id=arg['supervisor_id'], 
-                                     url=arg['url'],
-                                     location=arg['location'], 
-                                     status=arg['status'], 
-                                     security=security) }}
-        </form>
-        <form
-          action="{{ url_for('delete_camera', id=arg['_id']) }}"
-          method="POST"
-        >
-          <button type="submit" class="btn btn-light card-btn icon-btn">
-            <i class="fa fa-trash"></i>
-          </button>
-        </form>
-      </td>
-    </tr>
-    {% endfor %}
-  </tbody>
-</table>
-{% if args|length < 1 %}
-<h3 class="welcomeText">There is no any camera registered</h3>
-{% if security|length < 1%}
-<h3 class="welcomeText">But first you should add a security member</h3>
-{% endif %}
-{% endif %}
+        </div>
+        <div class="modal-body">
+          <table class="table table-striped table-light card-tbl">
+            <thead>
+              <tr>
+                <th scope="col">First Name</th>
+                <th scope="col">Last Name</th>
+                <th scope="col">Email</th>
+                <th scope="col">Phone Number</th>
+                <th scope="col"><i class="fa fa-ellipsis-v"></i></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for member in security %}
+                <tr>
+                  <td>{{ member['first_name'] }}</td>
+                  <td>{{ member['last_name'] }}</td>
+                  <td>{{ member['email'] }}</td>
+                  <td>{{ member['phone'] }}</td>
+                  <td>
+                    <button
+                      type="button"
+                      class="btn btn-light card-btn icon-btn"
+                      data-toggle="modal"
+                      data-target="#edit_sec_{{ member['_id']|string }}"
+                    >
+                      <i class="fa fa-edit"></i>
+                    </button>
+                    {{ render_edit_security_form(id=member['_id'],
+                                                  first_name=member['first_name'],
+                                                  last_name=member['last_name'], 
+                                                  email=member['email'],
+                                                  phone=member['phone']) }}
+                    
+                    <form
+                      action="{{ url_for('delete_security', id=member['_id']) }}"
+                      method="POST"
+                    >
+                      <button type="submit" class="btn btn-light card-btn icon-btn">
+                        <i class="fa fa-trash"></i>
+                      </button>
+                    </form>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+          {% if security|length < 1 %} 
+            <h3 class="welcomeText">
+              There is no any security member registered
+            </h3>
+          {% endif %}
+        </div>
+        <div class="modal-footer"></div>
+      </div>
+    </div>
+  </div>
+  <input
+    class="form-control bg-light text-dark card-inp"
+    type="search"
+    id="searchinp"
+    placeholder="Search"
+    aria-label="Search"
+  />
+  <table class="table table-striped table-light card-tbl">
+    <thead>
+      <tr>
+        <th scope="col">Location</th>
+        <th scope="col">Security Member</th>
+        <th scope="col">Status</th>
+        <th scope="col"><i class="fa fa-ellipsis-v"></i></th>
+      </tr>
+    </thead>
+    <tbody id="tableBody">
+      {% for camera in cameras %}
+        <tr>
+          <td>
+            {{ camera['location'] }} 
+            {% if camera['status'] == "Working" %}
+              <button
+                type="button"
+                class="btn btn-light card-btn icon-btn"
+                data-toggle="modal"
+                data-target="#{{camera['_id']}}"
+              >
+                <i class="fa fa-video-camera"></i>
+              </button>
+              <div
+                class="modal fade"
+                id="{{ camera['_id'] }}"
+                tabindex="-1"
+                role="dialog"
+                aria-labelledby="label"
+                aria-hidden="true"
+              >
+                <div
+                  class="modal-dialog modal-dialog-scrollable modal-lg mdContent"
+                  role="document"
+                >
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title modalTitle" id="label">
+                        Cam at {{ camera['location'] }}
+                      </h5>
+                      <button
+                        type="button"
+                        class="close"
+                        data-dismiss="modal"
+                        aria-label="Close"
+                      >
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <img
+                        id="bg"
+                        class="center"
+                        src="{{ url_for('video_feed', id=camera['_id']) }}"
+                      />
+                    </div>
+                    <div class="modal-footer"></div>
+                  </div>
+                </div>
+              </div>
+            {% endif %}
+          </td>
+          <td>
+            {% for member in security %}
+              {% if member['_id']|string == camera['supervisor_id'] %}
+                {{ member['first_name'] }} {{member['last_name']}}
+              {% endif %}
+            {% endfor %}
+          </td>
+          <td>
+            {{ camera['status'] }} 
+            {% if camera['status'] == "Working" %}
+              <i class="fa fa-check-circle" style="color: green"></i>
+            {% elif camera['status'] == "Stopped" %}
+              <i class="	fa fa-minus-circle" style="color: red"></i>
+            {% endif %}
+          </td>
+          <td>
+            <button
+              type="button"
+              class="btn btn-light card-btn icon-btn"
+              data-toggle="modal"
+              data-target="#edit_cam_{{ camera['_id']|string }}"
+            >
+              <i class="fa fa-edit"></i>
+            </button>
+            {{ render_edit_camera_form(id=camera['_id'],
+                                        supervisor_id=camera['supervisor_id'], 
+                                        url=camera['url'],
+                                        location=camera['location'], 
+                                        status=camera['status'], 
+                                        security=security) }}
+            <form
+              action="{{ url_for('delete_camera', id=camera['_id']) }}"
+              method="POST"
+            >
+              <button type="submit" class="btn btn-light card-btn icon-btn">
+                <i class="fa fa-trash"></i>
+              </button>
+            </form>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% if cameras|length < 1 %}
+    <h3 class="welcomeText">There is no any camera registered</h3>
+    {% if security|length < 1 %}
+      <h3 class="welcomeText">But first you should add a security member</h3>
+    {% endif %}
+  {% endif %}
 {% endblock %}

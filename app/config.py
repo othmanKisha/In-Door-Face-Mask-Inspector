@@ -35,9 +35,11 @@ DB_PASS = os.environ['MONGODB_PASSWORD']
 DB_HOST = os.environ['MONGODB_HOSTNAME']
 DB_NAME = os.environ['MONGODB_DATABASE']
 DB_PORT = 27017
-cluster = MongoClient(
-    host=DB_HOST, port=DB_PORT,
-    username=DB_USER, password=DB_PASS)
+cluster = MongoClient(host=DB_HOST, 
+                      port=DB_PORT,
+                      username=DB_USER, 
+                      password=DB_PASS
+                      )
 db = cluster[DB_NAME]
 
 # [mail config]
