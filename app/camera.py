@@ -8,6 +8,7 @@ import io
 import os
 import cv2
 import time
+import uuid
 import gridfs
 import config
 import numpy as np
@@ -244,8 +245,10 @@ def alert_and_store(jpg, source, flag):
     """
     cam = config.db['cameras'].find_one({'url': source})
     if cam['supervisor_id'] != -1:
-        sec = config.db['security'].find_one({'_id': cam['supervisor_id']})
-        To = [sec['email']]
+        sec = config.db['security'].find_one({
+            '_id': uuid.UUID(cam['supervisor_id'])
+            })
+        To = list(sec['email'])
 
         msg = MIMEMultipart()
         msg['Subject'] = 'IDFMI Alert'
@@ -288,18 +291,3 @@ def alert_and_store(jpg, source, flag):
     fs.put(frame, date=now, room=roomName)  # save image into DB.
 
     flag = False
-
-
-def generate(camera):
-    """
-    index route
-    :param:
-    :return: 
-    """
-    while True:
-        frame = camera.get_frame()
-        if frame is not None:
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + 
-                   frame + b'\r\n\r\n'
-                   )
