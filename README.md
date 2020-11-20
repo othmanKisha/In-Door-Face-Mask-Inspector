@@ -10,7 +10,7 @@ In addition to detection, it also provides a customization platform for surveill
 
 Another service provided from the system is alerting security members via email. 
 ### 2. Project Architecture
-The project consists of 3 containers as follow:
+The project consists of 3 containers
 
 ```bash
 idfmi: Contains the Flask application and gunicorn application server
@@ -18,7 +18,7 @@ nginx: Contains the Nginx web server
 mongo: Contains the MongoDB database
 ```
 
-Some info about the stack used:
+Some info about the stack used
 
 ```bash
 Python version: 3.8.1
@@ -29,10 +29,15 @@ Worker class:   gevent
 Web server:     Nginx
 Front end:      Bootsrap4, JQuery
 ```
+
+The system Architecture of IDFMI
+
+![System Architecture](images/system_architecture.png)
 ### 3. Project Tree
 The following is how the files are structured inside the project:
 
     In-Door-Face-Mask-Inspector/
+    │   .dockerignore    
     │   .gitignore
     │   docker-compose.yml
     │   Dockerfile
@@ -67,6 +72,46 @@ The following is how the files are structured inside the project:
     └───nginx/
             nginx.conf
     
+### 4. Screenshots
+#### The home page before signing
+- light theme 
+![Welcome Page Light](images/welcome-light.png)
+- dark theme 
+![Welcome Page Dark](images/welcome-dark.png)
+#### The home page after signing
+- light theme 
+![Home Page Light](images/home-light.png)
+- dark theme 
+![Home Page Dark](images/home-dark.png)
+#### Different functionalities
+
+- Adding a camera
+    - light theme 
+    ![Create Camera Light](images/create-camera-light.png)
+
+    - dark theme 
+    ![Create Camera Dark](images/create-camera-dark.png)
+
+- Adding a security member
+    - light theme 
+    ![Create Security Light](images/create-security-light.png)
+
+    - dark theme 
+    ![Create Security Dark](images/create-security-dark.png)
+
+- View all security member
+    - light theme 
+    ![View Security Light](images/view-security-light.png)
+
+    - dark theme 
+    ![View Security Dark](images/view-security-dark.png)
+
+- Update forms are similar to create forms.
+#### Camera Stream and Detection 
+- light theme 
+![Detection Light](images/detection-light.gif)
+- dark theme  
+![Detection Dark](images/detection-dark.gif)
 ## Requirements
 ### 1. Docker
 Since the project is containerized, then the only important dependency is to have docker and docker compose installed, installation guides are as follows:
