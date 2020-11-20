@@ -32,7 +32,7 @@ Front end:      Bootsrap4, JQuery
 
 The system Architecture of IDFMI
 
-![System Architecture](images/system_architecture.png)
+![System Architecture](https://github.com/othmanKisha/In-Door-Face-Mask-Inspector/blob/master/images/system_architecture.PNG)
 ### 3. Project Tree
 The following is how the files are structured inside the project:
 
@@ -75,43 +75,43 @@ The following is how the files are structured inside the project:
 ### 4. Screenshots
 #### The home page before signing
 - light theme 
-![Welcome Page Light](images/welcome-light.png)
+![Welcome Page Light](https://github.com/othmanKisha/In-Door-Face-Mask-Inspector/blob/master/images/welcome-light.png)
 - dark theme 
-![Welcome Page Dark](images/welcome-dark.png)
+![Welcome Page Dark](https://github.com/othmanKisha/In-Door-Face-Mask-Inspector/blob/master/images/welcome-dark.png)
 #### The home page after signing
 - light theme 
-![Home Page Light](images/home-light.png)
+![Home Page Light](https://github.com/othmanKisha/In-Door-Face-Mask-Inspector/blob/master/images/home-light.png)
 - dark theme 
-![Home Page Dark](images/home-dark.png)
+![Home Page Dark](https://github.com/othmanKisha/In-Door-Face-Mask-Inspector/blob/master/images/home-dark.png)
 #### Different functionalities
 
 - Adding a camera
     - light theme 
-    ![Create Camera Light](images/create-camera-light.png)
+    ![Create Camera Light](https://github.com/othmanKisha/In-Door-Face-Mask-Inspector/blob/master/images/create-camera-light.png)
 
     - dark theme 
-    ![Create Camera Dark](images/create-camera-dark.png)
+    ![Create Camera Dark](https://github.com/othmanKisha/In-Door-Face-Mask-Inspector/blob/master/images/create-camera-dark.png)
 
 - Adding a security member
     - light theme 
-    ![Create Security Light](images/create-security-light.png)
+    ![Create Security Light](https://github.com/othmanKisha/In-Door-Face-Mask-Inspector/blob/master/images/create-security-light.png)
 
     - dark theme 
-    ![Create Security Dark](images/create-security-dark.png)
+    ![Create Security Dark](https://github.com/othmanKisha/In-Door-Face-Mask-Inspector/blob/master/images/create-security-dark.png)
 
 - View all security member
     - light theme 
-    ![View Security Light](images/view-security-light.png)
+    ![View Security Light](https://github.com/othmanKisha/In-Door-Face-Mask-Inspector/blob/master/images/view-security-light.png)
 
     - dark theme 
-    ![View Security Dark](images/view-security-dark.png)
+    ![View Security Dark](https://github.com/othmanKisha/In-Door-Face-Mask-Inspector/blob/master/images/view-security-dark.png)
 
 - Update forms are similar to create forms.
 #### Camera Stream and Detection 
 - light theme 
-![Detection Light](images/detection-light.gif)
+![Detection Light](https://github.com/othmanKisha/In-Door-Face-Mask-Inspector/blob/master/images/detection-light.gif)
 - dark theme  
-![Detection Dark](images/detection-dark.gif)
+![Detection Dark](https://github.com/othmanKisha/In-Door-Face-Mask-Inspector/blob/master/images/detection-dark.gif)
 ## Requirements
 ### 1. Docker
 Since the project is containerized, then the only important dependency is to have docker and docker compose installed, installation guides are as follows:
