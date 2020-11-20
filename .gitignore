@@ -111,7 +111,7 @@ flask_session/
 # vscode configuration
 .vscode/
 
-logs/
+.log
 
 flask_monitoringdashboard.db
 
