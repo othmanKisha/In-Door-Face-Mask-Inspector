@@ -75,42 +75,60 @@ The following is how the files are structured inside the project:
 ### 4. Screenshots
 #### The home page before signing
 - light theme 
-![Welcome Page Light](https://github.com/othmanKisha/In-Door-Face-Mask-Inspector/blob/master/images/welcome-light.png)
+
+![Welcome Page Light](https://github.com/othmanKisha/In-Door-Face-Mask-Inspector/blob/master/images/welcome-light.PNG)
+
 - dark theme 
-![Welcome Page Dark](https://github.com/othmanKisha/In-Door-Face-Mask-Inspector/blob/master/images/welcome-dark.png)
+
+![Welcome Page Dark](https://github.com/othmanKisha/In-Door-Face-Mask-Inspector/blob/master/images/welcome-dark.PNG)
 #### The home page after signing
 - light theme 
-![Home Page Light](https://github.com/othmanKisha/In-Door-Face-Mask-Inspector/blob/master/images/home-light.png)
+
+![Demo](https://github.com/othmanKisha/In-Door-Face-Mask-Inspector/blob/master/images/home-light.gif)
+
 - dark theme 
-![Home Page Dark](https://github.com/othmanKisha/In-Door-Face-Mask-Inspector/blob/master/images/home-dark.png)
+
+![Home Page Dark](https://github.com/othmanKisha/In-Door-Face-Mask-Inspector/blob/master/images/home-dark.gif)
 #### Different functionalities
 
 - Adding a camera
+
     - light theme 
-    ![Create Camera Light](https://github.com/othmanKisha/In-Door-Face-Mask-Inspector/blob/master/images/create-camera-light.png)
+    
+    ![Create Camera Light](https://github.com/othmanKisha/In-Door-Face-Mask-Inspector/blob/master/images/create-camera-light.PNG)
 
     - dark theme 
-    ![Create Camera Dark](https://github.com/othmanKisha/In-Door-Face-Mask-Inspector/blob/master/images/create-camera-dark.png)
+
+    ![Create Camera Dark](https://github.com/othmanKisha/In-Door-Face-Mask-Inspector/blob/master/images/create-camera-dark.PNG)
 
 - Adding a security member
+
     - light theme 
-    ![Create Security Light](https://github.com/othmanKisha/In-Door-Face-Mask-Inspector/blob/master/images/create-security-light.png)
+
+    ![Create Security Light](https://github.com/othmanKisha/In-Door-Face-Mask-Inspector/blob/master/images/create-security-light.PNG)
 
     - dark theme 
-    ![Create Security Dark](https://github.com/othmanKisha/In-Door-Face-Mask-Inspector/blob/master/images/create-security-dark.png)
+
+    ![Create Security Dark](https://github.com/othmanKisha/In-Door-Face-Mask-Inspector/blob/master/images/create-security-dark.PNG)
 
 - View all security member
+
     - light theme 
-    ![View Security Light](https://github.com/othmanKisha/In-Door-Face-Mask-Inspector/blob/master/images/view-security-light.png)
+
+    ![View Security Light](https://github.com/othmanKisha/In-Door-Face-Mask-Inspector/blob/master/images/view-security-light.gif)
 
     - dark theme 
-    ![View Security Dark](https://github.com/othmanKisha/In-Door-Face-Mask-Inspector/blob/master/images/view-security-dark.png)
+
+    ![View Security Dark](https://github.com/othmanKisha/In-Door-Face-Mask-Inspector/blob/master/images/view-security-dark.gif)
 
 - Update forms are similar to create forms.
 #### Camera Stream and Detection 
 - light theme 
+
 ![Detection Light](https://github.com/othmanKisha/In-Door-Face-Mask-Inspector/blob/master/images/detection-light.gif)
+
 - dark theme  
+
 ![Detection Dark](https://github.com/othmanKisha/In-Door-Face-Mask-Inspector/blob/master/images/detection-dark.gif)
 ## Requirements
 ### 1. Docker

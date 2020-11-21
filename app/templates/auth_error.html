@@ -1,14 +1,5 @@
 {% extends "base.html" %} 
 
-{% block metas %} 
-  {% if config.get("B2C_RESET_PASSWORD_AUTHORITY") and "AADB2C90118" in result.get("error_description") %}
-    <meta
-      http-equiv="refresh"
-      content='0;{{_build_auth_url(authority=config["B2C_RESET_PASSWORD_AUTHORITY"])}}'
-    />
-  {% endif %} 
-{% endblock %} 
-
 {% block contents %}
   <h2>Login Failure</h2>
   <dl>

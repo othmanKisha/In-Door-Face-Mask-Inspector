@@ -1,5 +1,5 @@
 # -*- encoding=utf-8 -*-
-# Authentication is inspired from the tutorial by Microsoft form azure active 
+# Authentication is inspired from the tutorial by Microsoft form azure active
 # directory authentication.
 # Tutorial Source: https://github.com/rebremer/ms-identity-python-webapp-backend
 import msal
@@ -11,16 +11,16 @@ from camera import Camera
 from flask_session import Session
 import flask_monitoringdashboard as dashboard
 from werkzeug.middleware.proxy_fix import ProxyFix
-from flask import (Flask, 
-                   flash, 
-                   redirect, 
-                   render_template, 
-                   request, 
-                   Response, 
-                   session, 
+from flask import (Flask,
+                   flash,
+                   redirect,
+                   render_template,
+                   request,
+                   Response,
+                   session,
                    url_for
                    )
-                   
+
 
 app = Flask(__name__)
 app.config.from_object(config)
@@ -45,7 +45,7 @@ def generate(camera):
         frame = camera.get_frame()
         if frame is not None:
             yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + 
+                   b'Content-Type: image/jpeg\r\n\r\n' +
                    frame + b'\r\n\r\n'
                    )
 
@@ -64,11 +64,11 @@ def _save_cache(cache):
 
 def _build_msal_app(cache=None, authority=None):
     return msal.ConfidentialClientApplication(
-        config.CLIENT_ID, 
+        config.CLIENT_ID,
         authority=authority or config.AUTHORITY,
-        client_credential=config.CLIENT_SECRET, 
+        client_credential=config.CLIENT_SECRET,
         token_cache=cache
-        )
+    )
 
 
 def _build_auth_url(authority=None, scopes=None, state=None):
@@ -76,7 +76,7 @@ def _build_auth_url(authority=None, scopes=None, state=None):
         scopes or [],
         state=state or str(uuid.uuid4()),
         redirect_uri=url_for("authorized", _external=True)
-        )
+    )
 
 
 def _get_token_from_cache(scope=None):
@@ -91,10 +91,6 @@ def _get_token_from_cache(scope=None):
         return result
 
 
-# used in templates
-app.jinja_env.globals.update(_build_auth_url=_build_auth_url)
-
-
 @app.route("/", methods=['GET'])
 @login_required
 def index():
@@ -106,10 +102,10 @@ def index():
     """
     cameras = list(cameras_collection.find({}))
     security = list(security_collection.find({}))
-    return render_template('pages/home.html', 
-                            cameras=cameras, 
-                            security=security
-                            )
+    return render_template('pages/home.html',
+                           cameras=cameras,
+                           security=security
+                           )
 
 
 @app.route("/create/camera", methods=['POST'])
@@ -124,18 +120,19 @@ def create_camera():
     :param supervisor: the _id of security memeber selected in the form.
     :return redirect: go to root route with flash of success or failure. 
     """
-    _id = uuid.uuid4() # generate a unique id for the record
+    _id = uuid.uuid4()  # generate a unique id for the record
     data = request.form.copy()
+    # In case we want to use webcam
+    url = 0 if data.get('url') == 'rtsp://ip:port/' else data.get('url')
     try:
         cameras_collection.insert_one({
             "_id": _id,
             "location": data.get('location'),
-            "url": data.get('url'),
+            "url": url,
             "status": data.get('status'),
             "supervisor_id": data.get('supervisor_id')
         })
-        flash(
-            f"success|Camera at {data.get('location')} has been successfully added.")
+        flash(f"success|Camera at {data.get('location')} has been successfully added.")
     except:
         flash(f"danger|Camera couldn't be added")
     finally:
@@ -176,10 +173,12 @@ def edit_camera(id):
     :return: 
     """
     data = request.form.copy()
+    # In case we want to use webcam
+    url = 0 if data.get('url') == 'rtsp://ip:port/' else data.get('url')
     try:
         cameras_collection.update_one({"_id": id}, {"$set": {
             "location": data.get('location'),
-            "url": data.get('url'),
+            "url": url,
             "status": data.get('status'),
             "supervisor_id": data.get('supervisor_id')
         }})
@@ -240,7 +239,7 @@ def delete_security(id):
     """
     try:
         cameras_collection.update_many(
-            {'supervisor_id': str(id)}, 
+            {'supervisor_id': str(id)},
             {'$set': {
                 'supervisor_id': -1
             }})
@@ -282,7 +281,7 @@ def login():
     # here we choose to also collect end user consent upfront
     auth_url = _build_auth_url(
         scopes=config.SCOPE, state=session["state"]
-        )
+    )
     return render_template("pages/welcome.html", auth_url=auth_url)
 
 
@@ -323,7 +322,7 @@ def authorized():
             # Misspelled scope would cause an HTTP 400 error here
             scopes=config.SCOPE,
             redirect_uri=url_for("authorized", _external=True)
-            )
+        )
         if "error" in result:
             return render_template("auth_error.html", result=result)
         session["user"] = result.get("id_token_claims")
