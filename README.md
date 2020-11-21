@@ -37,39 +37,39 @@ The system Architecture of IDFMI
 The following is how the files are structured inside the project:
 
     In-Door-Face-Mask-Inspector/
-    │   .dockerignore    
-    │   .gitignore
-    │   docker-compose.yml
-    │   Dockerfile
-    │   LICENSE
-    │   README.md
-    │   requirements.txt
-    ├───app/
-    │   │   app.py
-    │   │   auth.py
-    │   │   camera.py
-    │   │   config.py
-    │   ├───model/
-    │   │       face_mask_detection.pb
-    │   │       load_model.py
-    │   │       utils.py
-    │   ├───static/
-    │   │       main.css   
-    │   │       icon.png   
-    │   │       main.js   
-    │   │       main.scss      
-    │   └───templates/
-    │       │   base.html
-    │       │   auth_error.html        
-    │       ├───forms/
-    │       │       camera.html
-    │       │       security.html        
-    │       └───pages/
-    │               home.html
-    │               welcome.html
-    ├───gunicorn/
-    │       gunicorn.conf.py
-    └───nginx/
+        .dockerignore    
+        .gitignore
+        docker-compose.yml
+        Dockerfile
+        LICENSE
+        README.md
+        requirements.txt
+        app/
+            app.py
+            auth.py
+            camera.py
+            config.py
+            model/
+                face_mask_detection.pb
+                load_model.py
+                utils.py
+            static/
+                main.css   
+                icon.png   
+                main.js   
+                main.scss      
+            templates/
+                base.html
+                auth_error.html        
+                forms/
+                   camera.html
+                   security.html        
+                pages/
+                   home.html
+                   welcome.html
+        gunicorn/
+            gunicorn.conf.py
+        nginx/
             nginx.conf
     
 ### 4. Screenshots
