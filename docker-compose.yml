@@ -2,11 +2,8 @@ version: "3.8"
 
 services:
   idfmi:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    build: ./app
     container_name: idfmi
-    tty: true
     restart: always
     environment:
       - KEY_VAULT_NAME=${KEY_VAULT_NAME}
@@ -23,14 +20,13 @@ services:
       - SMTP_SERVER=smtp.gmail.com
     networks:
       - db_network
-      - web_network  
+      - web_network
     depends_on:
       - mongo
     ports:
       - 5000:5000
     volumes:
       - ./app/:/app/
-      - ./logs/gunicorn/:/var/log/gunicorn/
 
   mongo:
     image: mongo:latest
@@ -44,27 +40,22 @@ services:
       - MONGODB_DATA_DIR=/data/db
       - MONGODB_LOG_DIR=/dev/null
     networks:
-      - db_network  
+      - db_network
     ports:
       - 27017:27017
     volumes:
       - mongodbdata:/data/db
-      - ./logs/mongodb/:/var/log/mongodb/
 
   nginx:
-    image: nginx:latest
+    build: ./nginx
     container_name: nginx
-    restart: unless-stopped
-    tty: true
+    restart: always
     networks:
       - web_network
     depends_on:
       - idfmi
     ports:
       - 80:80
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
-      - ./logs/nginx/:/var/log/nginx/
 
 networks:
   db_network:
@@ -72,4 +63,3 @@ networks:
 
 volumes:
   mongodbdata:
-  

@@ -24,6 +24,7 @@ from flask import (Flask,
 
 app = Flask(__name__)
 app.config.from_object(config)
+dashboard.config.init_from(file='dashboard/config.cfg')
 dashboard.bind(app)
 Session(app)
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
@@ -132,7 +133,8 @@ def create_camera():
             "status": data.get('status'),
             "supervisor_id": data.get('supervisor_id')
         })
-        flash(f"success|Camera at {data.get('location')} has been successfully added.")
+        flash(
+            f"success|Camera at {data.get('location')} has been successfully added.")
     except:
         flash(f"danger|Camera couldn't be added")
     finally:
@@ -157,7 +159,8 @@ def create_security():
             "email": data.get('email'),
             "phone": data.get('phone')
         })
-        flash(f"success|Security member {data.get('first_name')} {data.get('last_name')} has been successfully added.")
+        flash(
+            f"success|Security member {data.get('first_name')} {data.get('last_name')} has been successfully added.")
     except:
         flash(f"danger|Security member couldn't be added")
     finally:
@@ -328,8 +331,3 @@ def authorized():
         session["user"] = result.get("id_token_claims")
         _save_cache(cache)
     return redirect(url_for("index"))
-
-
-if __name__ == "__main__":
-    # Run the server
-    app.run(host='0.0.0.0', threaded=True)

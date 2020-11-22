@@ -113,7 +113,7 @@ flask_session/
 
 .log
 
-flask_monitoringdashboard.db
+*.db
 
 secret.yaml
 

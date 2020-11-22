@@ -93,3 +93,11 @@ $("#searchinp").on("keyup", function () {
     $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
   });
 });
+
+$("#searchinpS").on("keyup", function () {
+  let value = $(this)[0].value.toLowerCase();
+  
+  $("#tableBodyS tr").filter(function () {
+    $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
+  });
+});

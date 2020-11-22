@@ -64,6 +64,13 @@
           </button>
         </div>
         <div class="modal-body">
+          <input
+            class="form-control bg-light text-dark card-inp"
+            type="search"
+            id="searchinpS"
+            placeholder="Search"
+            aria-label="Search"
+          />
           <table class="table table-striped table-light card-tbl">
             <thead>
               <tr>
@@ -74,7 +81,7 @@
                 <th scope="col"><i class="fa fa-ellipsis-v"></i></th>
               </tr>
             </thead>
-            <tbody>
+            <tbody id="tableBodyS">
               {% for member in security %}
                 <tr>
                   <td>{{ member['first_name'] }}</td>
