@@ -25,7 +25,6 @@ from flask import (Flask,
 app = Flask(__name__)
 app.config.from_object(config)
 Session(app)
-dashboard.config.database_name = config.DASHBOARD_DB
 dashboard.bind(app)
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 cameras_collection = config.db['cameras']

@@ -105,11 +105,9 @@ venv.bak/
 
 # flask session files
 flask_session/
-!flask_session/.gitkeep
 
 # monitoring dashboard db
-flask_monitoringdashboard/
-!flask_monitoringdashboard/.gitkeep
+flask_monitoringdashboard.db
 
 # vscode configuration
 .vscode/

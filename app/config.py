@@ -11,9 +11,6 @@ from azure.identity import DefaultAzureCredential
 # for sessions
 SESSION_TYPE = "filesystem"  
 
-# database for monitoring dashboard
-DASHBOARD_DB = "sqlite:////app/flask_monitoringdashboard/dashboard.db"
-
 # [keyvault config]
 KEY_VAULT_NAME = os.environ["KEY_VAULT_NAME"]
 TENANT_ID = os.environ["AZURE_TENANT_ID"]
