@@ -24,9 +24,9 @@ from flask import (Flask,
 
 app = Flask(__name__)
 app.config.from_object(config)
-dashboard.config.init_from(file='dashboard/config.cfg')
-dashboard.bind(app)
 Session(app)
+dashboard.config.database_name = config.DASHBOARD_DB
+dashboard.bind(app)
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 cameras_collection = config.db['cameras']
 security_collection = config.db['security']
@@ -331,3 +331,8 @@ def authorized():
         session["user"] = result.get("id_token_claims")
         _save_cache(cache)
     return redirect(url_for("index"))
+
+
+if __name__ == "__main__":
+    # Run the server
+    app.run(host='0.0.0.0', threaded=True)

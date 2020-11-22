@@ -4,9 +4,6 @@ FROM python:3.8.1
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-# Copying the gunicorn configuration file
-COPY wsgi.conf.py /wsgi.conf.py
-
 # Copying the requirements file
 COPY requirements.txt /requirements.txt
 # Upgrading pip
@@ -23,4 +20,10 @@ WORKDIR /app
 EXPOSE 5000
 
 # Running Gunicorn
-ENTRYPOINT ["gunicorn", "--config", "/wsgi.conf.py", "wsgi:app"]
+ENTRYPOINT ["gunicorn", \
+            "--bind", "0.0.0.0:5000", \
+            "--workers", "1", \
+            "--worker-class", "egg:meinheld#gunicorn_worker", \
+            "--threads", "9", \
+            "--timeout", "120", \
+            "app:app"]

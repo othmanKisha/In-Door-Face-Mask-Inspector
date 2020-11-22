@@ -1,5 +1,3 @@
-lib/
-
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -105,18 +103,13 @@ venv.bak/
 # mypy
 .mypy_cache/
 
+!.gitkeep
+
 # flask session files
 flask_session/
 
+# monitoring dashboard db
+flask_monitoringdashboard/
+
 # vscode configuration
 .vscode/
-
-.log
-
-*.db
-
-secret.yaml
-
-*_mask_detector.py
-
-dataset/

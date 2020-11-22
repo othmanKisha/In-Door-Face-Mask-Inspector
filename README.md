@@ -46,13 +46,7 @@ The following is how the files are structured inside the project:
             camera.py
             config.py
             Dockerfile
-            requirements.txt
-            wsgi.conf.py
-            wsgi.py
-            dashboard/
-                config.cfg
-                dashboard.db
-            flask_session/  
+            requirements.txt 
             model/
                 face_mask_detection.pb
                 load_model.py
