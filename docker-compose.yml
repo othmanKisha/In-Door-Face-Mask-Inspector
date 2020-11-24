@@ -27,6 +27,10 @@ services:
       - 5000:5000
     volumes:
       - ./app/:/app/
+# This is used to simulate the webcam, 
+# should be used in linux virtual machine with access to webcam allowed      
+#     devices: 
+#       - /dev/video0:/dev/video0
 
   mongo:
     image: mongo:latest
