@@ -5,7 +5,19 @@ services:
     build: ./app
     container_name: idfmi
     restart: always
-    env_file: .env
+    environment:
+      - KEY_VAULT_NAME=${KEY_VAULT_NAME}
+      - AZURE_CLIENT_ID=${AZURE_CLIENT_ID}
+      - AZURE_CLIENT_SECRET=${AZURE_CLIENT_SECRET}
+      - AZURE_SUBSCRIPTION_ID=${AZURE_SUBSCRIPTION_ID}
+      - AZURE_TENANT_ID=${AZURE_TENANT_ID}
+      - MONGODB_DATABASE=IDFMI
+      - MONGODB_USERNAME=kfupm_idfmi
+      - MONGODB_PASSWORD=idfmi
+      - MONGODB_HOSTNAME=mongodb
+      - EMAIL_ADDRESS=idfmi255@gmail.com
+      - EMAIL_PASSWORD=idfmi@123
+      - SMTP_SERVER=smtp.gmail.com 
     networks:
       - db_network
       - web_network
@@ -17,8 +29,8 @@ services:
       - ./app/:/app/
 # This is used to simulate the webcam, 
 # should be used in linux virtual machine with access to webcam allowed      
-#     devices: 
-#       - /dev/video1:/dev/video0
+    devices: 
+      - /dev/video0:/dev/video0
 
   mongo:
     image: mongo:latest
@@ -26,9 +38,9 @@ services:
     restart: unless-stopped
     command: mongod --auth
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=${MONGODB_USERNAME}
-      - MONGO_INITDB_ROOT_PASSWORD=${MONGODB_PASSWORD}
-      - MONGO_INITDB_DATABASE=${MONGODB_DATABASE}
+      - MONGO_INITDB_ROOT_USERNAME=kfupm_idfmi
+      - MONGO_INITDB_ROOT_PASSWORD=idfmi
+      - MONGO_INITDB_DATABASE=IDFMI
       - MONGODB_DATA_DIR=/data/db
       - MONGODB_LOG_DIR=/dev/null
     networks:
