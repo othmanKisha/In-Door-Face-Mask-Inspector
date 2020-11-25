@@ -123,8 +123,10 @@ def create_camera():
     _id = uuid.uuid4()  # generate a unique id for the record
     data = request.form.copy()
     # In case we want to use webcam
-    url = 0 if data.get('url') == 'rtsp://ip:port/' else data.get('url')
+    url = 0 if data.get('url') == '0' else data.get('url')
     try:
+        if len(list(security_collection.find({}))) < 1:
+            raise Exception
         cameras_collection.insert_one({
             "_id": _id,
             "location": data.get('location'),
@@ -176,7 +178,7 @@ def edit_camera(id):
     """
     data = request.form.copy()
     # In case we want to use webcam
-    url = 0 if data.get('url') == 'rtsp://ip:port/' else data.get('url')
+    url = 0 if data.get('url') == '0' else data.get('url')
     try:
         cameras_collection.update_one({"_id": id}, {"$set": {
             "location": data.get('location'),
