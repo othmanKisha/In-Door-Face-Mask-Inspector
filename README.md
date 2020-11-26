@@ -146,7 +146,7 @@ You can check microsoft's documentation on how to make a project with azure acti
 
 - Azure KeyVault: https://azure.microsoft.com/en-us/services/key-vault/#documentation
 ### 3. Email Account
-- could any email (gmail, yahoo, outlook), but we used gmail for our prototype.
+- could use any email (gmail, yahoo, outlook), but we used gmail for our prototype.
 ## Installation
 - clone the repository:
 
