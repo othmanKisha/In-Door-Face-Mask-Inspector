@@ -145,13 +145,29 @@ You can check microsoft's documentation on how to make a project with azure acti
 - Azure Active Directory: https://azure.microsoft.com/en-us/services/active-directory/#documentation
 
 - Azure KeyVault: https://azure.microsoft.com/en-us/services/key-vault/#documentation
-
+### 3. Email Account
+- could any email (gmail, yahoo, outlook), but we used gmail for our prototype.
 ## Installation
 - clone the repository:
 
     ```bash
     git clone https://github.com/othmanKisha/In-Door-Face-Mask-Inspector.git
     ```   
+- After finishing all the steps for Azure Active Directory and Key Vault, make sure to add a **.env** file and inside the file add the following:
+    ```bash
+    KEY_VAULT_NAME=${KEY_VAULT_NAME} # Stored in OS environment
+    AZURE_CLIENT_ID=${AZURE_CLIENT_ID} # Stored in OS environment
+    AZURE_CLIENT_SECRET=${AZURE_CLIENT_SECRET} # Stored in OS environment
+    AZURE_SUBSCRIPTION_ID=${AZURE_SUBSCRIPTION_ID} # Stored in OS environment
+    AZURE_TENANT_ID=${AZURE_TENANT_ID} # Stored in OS environment
+    MONGODB_DATABASE=<The name of the database to be created>
+    MONGODB_USERNAME=<The username of the database to be created>
+    MONGODB_PASSWORD=<The password of the database to be created>
+    MONGODB_HOSTNAME=mongodb # This is the name of mongodb container
+    EMAIL_ADDRESS=<The email address created to send alerts>
+    EMAIL_PASSWORD=<The password of the alerts email address>
+    SMTP_SERVER=<The mail server, it is smtp.gmail.com when you use gmail, you can search the other mail servers>
+    ```
 ## Usage
 - after cloning the repo, go to the project directory:
 
