@@ -153,7 +153,7 @@ You can check microsoft's documentation on how to make a project with azure acti
     ```bash
     git clone https://github.com/othmanKisha/In-Door-Face-Mask-Inspector.git
     ```   
-- After finishing all the steps for Azure Active Directory and Key Vault, make sure to add a **.env** file and inside the file add the following:
+- After finishing all the steps for Azure Active Directory and Key Vault, make sure to create a **.env** file inside the In-Door-Face-Mask-Inspector folder and inside the file add the following:
     ```bash
     KEY_VAULT_NAME=${KEY_VAULT_NAME} # Stored in OS environment
     AZURE_CLIENT_ID=${AZURE_CLIENT_ID} # Stored in OS environment
@@ -169,7 +169,7 @@ You can check microsoft's documentation on how to make a project with azure acti
     SMTP_SERVER=<The mail server, it is smtp.gmail.com when you use gmail, you can search the other mail servers>
     ```
 ## Usage
-- after cloning the repo, go to the project directory:
+- make sure you are in the project directory:
 
     ```bash
     cd In-Door-Face-Mask-Inspector
