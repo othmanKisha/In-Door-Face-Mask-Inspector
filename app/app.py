@@ -264,8 +264,7 @@ def video_feed(id):
     :return: 
     """
     try:
-        cam = cameras_collection.find_one({'_id': id})
-        return Response(generate(Camera(cam['url'])),
+        return Response(generate(Camera(id)),
                         mimetype='multipart/x-mixed-replace; boundary=frame'
                         )
     except:

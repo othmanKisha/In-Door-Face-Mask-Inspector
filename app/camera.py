@@ -1,5 +1,5 @@
 # -*- encoding=utf-8 -*-
-# Took and modified the BaseCamera and CameraEvent classes, and changed the Cmaera Class
+# Took and modified the BaseCamera class, and changed the Camera Class
 # Original Source: https://blog.miguelgrinberg.com/post/flask-video-streaming-revisited
 # Original Code Repository: https://github.com/miguelgrinberg/flask-video-streaming
 # Modified a little bit in inference method from face mask detection repository
@@ -11,77 +11,34 @@ import time
 import uuid
 import gridfs
 import config
+import threading
 import numpy as np
 from datetime import datetime
 from email.mime.text import MIMEText
 from email.mime.image import MIMEImage
-from threading import Thread, Timer, Event
-from model.load_model import tf_inference
 from email.mime.multipart import MIMEMultipart
-from model.utils import decode_bbox, single_class_non_max_suppression
-
-try:
-    from greenlet import getcurrent as get_ident
-except ImportError:
-    try:
-        from thread import get_ident
-    except ImportError:
-        from _thread import get_ident
-
-
-class CameraEvent(object):
-    """An Event-like class that signals all active clients when a new frame is
-    available.
-    """
-    def __init__(self):
-        self.events = {}
-
-    def wait(self):
-        """Invoked from each client's thread to wait for the next frame."""
-        ident = get_ident()
-        if ident not in self.events:
-            # this is a new client
-            # add an entry for it in the self.events dict
-            # each entry has two elements, a threading.Event() and a timestamp
-            self.events[ident] = [Event(), time.time()]
-        return self.events[ident][0].wait()
-
-    def set(self):
-        """Invoked by the camera thread when a new frame is available."""
-        now = time.time()
-        remove = None
-        for ident, event in self.events.items():
-            if not event[0].isSet():
-                # if this client's event is not set, then set it
-                # also update the last set timestamp to now
-                event[0].set()
-                event[1] = now
-            else:
-                # if the client's event is already set, it means the client
-                # did not process a previous frame
-                # if the event stays set for more than 5 seconds, then assume
-                # the client is gone and remove it
-                if now - event[1] > 5:
-                    remove = ident
-        if remove:
-            del self.events[remove]
-
-    def clear(self):
-        """Invoked from each client's thread after a frame was processed."""
-        self.events[get_ident()][0].clear()
+from model import (decode_bbox, 
+                   single_class_non_max_suppression, 
+                   tf_inference
+                   )
 
 
 class BaseCamera(object):
-    thread = None  # background thread that reads frames from camera
-    frame = None  # current frame is stored here by background thread
-    event = CameraEvent()
+    threads = dict()  # background thread that reads frames from camera
+    frames = dict()  # current frame is stored here by background thread
+    sources = dict()
 
-    def __init__(self):
+    def __init__(self, _id, source):
         """Start the background camera thread if it isn't running yet."""
-        if BaseCamera.thread is None:
+        self._id = uuid.UUID(_id)
+        self.sources[self._id] = source
+        if BaseCamera.threads.get(self._id) is None:
             # start background frame thread
-            BaseCamera.thread = Thread(target=self._thread)
-            BaseCamera.thread.start()
+            BaseCamera.threads[self._id] = threading.Thread(
+                target=self._thread, 
+                args=(self._id, self.sources[self._id])
+            )
+            BaseCamera.threads[self._id].start()
 
             # wait until frames are available
             while self.get_frame() is None:
@@ -89,55 +46,34 @@ class BaseCamera(object):
 
     def get_frame(self):
         """Return the current camera frame."""
-        # wait for a signal from the camera thread
-        BaseCamera.event.wait()
-        BaseCamera.event.clear()
-
-        return BaseCamera.frame
+        try:
+            return BaseCamera.frames[self._id]
+        except:    
+            return None
 
     @staticmethod
-    def frames():
+    def _frames(source):
         """"Generator that returns frames from the camera."""
         raise RuntimeError('Must be implemented by subclasses.')
 
     @classmethod
-    def _thread(cls):
+    def _thread(cls, _id, source):
         """Camera background thread."""
         print('Starting camera thread.')
-        frames_iterator = cls.frames()
+        frames_iterator = cls._frames(source)
         for frame in frames_iterator:
-            BaseCamera.frame = frame
-            BaseCamera.event.set()  # send signal to clients
+            BaseCamera.frames[_id] = frame
             time.sleep(0)
 
 
 class Camera(BaseCamera):
-    def __init__(self, source=0):
-        """
-        index route
-        :param:
-        :return: 
-        """
-        Camera.set_video_source(source)
-        super(Camera, self).__init__()
+    def __init__(self, _id):
+        cam = config.db['cameras'].find_one({'_id': _id})
+        super(Camera, self).__init__(_id, cam['url'])
 
     @staticmethod
-    def set_video_source(source):
-        """
-        index route
-        :param:
-        :return: 
-        """
-        Camera.video_source = source
-
-    @staticmethod
-    def frames():
-        """
-        index route
-        :param:
-        :return: 
-        """
-        camera = cv2.VideoCapture(Camera.video_source)
+    def _frames(source):
+        camera = cv2.VideoCapture(source)
         height = camera.get(cv2.CAP_PROP_FRAME_HEIGHT)
         width = camera.get(cv2.CAP_PROP_FRAME_WIDTH)
         fps = camera.get(cv2.CAP_PROP_FPS)
@@ -162,10 +98,10 @@ class Camera(BaseCamera):
                     jpg = cv2.imencode('.jpg', img)[1]
                     if has_violation and not flag:
                         flag = True
-                        alert_timer = Timer(60, 
-                                            alert_and_store,
-                                            args=(jpg, Camera.video_source, flag)
-                                            )
+                        alert_timer = threading.Timer(60, 
+                                                      alert_and_store,
+                                                      args=(jpg, source, flag)
+                                                      )
                         alert_timer.start()
 
                     io_buf = io.BytesIO(jpg)

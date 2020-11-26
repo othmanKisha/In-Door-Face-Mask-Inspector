@@ -2,10 +2,9 @@ import os
 import numpy as np
 from smtplib import SMTP
 from pymongo import MongoClient
-from model.utils import generate_anchors
-from model.load_model import load_tf_model
 from azure.keyvault.secrets import SecretClient
 from azure.identity import DefaultAzureCredential
+from model import generate_anchors, load_tf_model
 
 
 # for sessions
