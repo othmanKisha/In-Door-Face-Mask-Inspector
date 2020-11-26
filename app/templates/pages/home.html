@@ -97,12 +97,6 @@
                     >
                       <i class="fa fa-edit"></i>
                     </button>
-                    {{ render_edit_security_form(id=member['_id'],
-                                                  first_name=member['first_name'],
-                                                  last_name=member['last_name'], 
-                                                  email=member['email'],
-                                                  phone=member['phone']) }}
-                    
                     <form
                       action="{{ url_for('delete_security', id=member['_id']) }}"
                       method="POST"
@@ -113,6 +107,11 @@
                     </form>
                   </td>
                 </tr>
+                {{ render_edit_security_form(id=member['_id'],
+                                            first_name=member['first_name'],
+                                            last_name=member['last_name'], 
+                                            email=member['email'],
+                                            phone=member['phone']) }}
               {% endfor %}
             </tbody>
           </table>
@@ -156,43 +155,6 @@
               >
                 <i class="fa fa-video-camera"></i>
               </button>
-              <div
-                class="modal fade"
-                id="{{ camera['_id'] }}"
-                tabindex="-1"
-                role="dialog"
-                aria-labelledby="label"
-                aria-hidden="true"
-              >
-                <div
-                  class="modal-dialog modal-dialog-scrollable modal-lg mdContent"
-                  role="document"
-                >
-                  <div class="modal-content">
-                    <div class="modal-header">
-                      <h5 class="modal-title modalTitle" id="label">
-                        Cam at {{ camera['location'] }}
-                      </h5>
-                      <button
-                        type="button"
-                        class="close"
-                        data-dismiss="modal"
-                        aria-label="Close"
-                      >
-                        <span aria-hidden="true">&times;</span>
-                      </button>
-                    </div>
-                    <div class="modal-body">
-                      <img
-                        id="bg"
-                        class="center"
-                        src="{{ url_for('video_feed', id=camera['_id']) }}"
-                      />
-                    </div>
-                    <div class="modal-footer"></div>
-                  </div>
-                </div>
-              </div>
             {% endif %}
           </td>
           <td>
@@ -219,12 +181,6 @@
             >
               <i class="fa fa-edit"></i>
             </button>
-            {{ render_edit_camera_form(id=camera['_id'],
-                                        supervisor_id=camera['supervisor_id'], 
-                                        url=camera['url'],
-                                        location=camera['location'], 
-                                        status=camera['status'], 
-                                        security=security) }}
             <form
               action="{{ url_for('delete_camera', id=camera['_id']) }}"
               method="POST"
@@ -235,6 +191,51 @@
             </form>
           </td>
         </tr>
+        {% if camera['status'] == "Working" %}
+          <div
+            class="modal fade"
+            id="{{ camera['_id'] }}"
+            tabindex="-1"
+            role="dialog"
+            aria-labelledby="label"
+            aria-hidden="true"
+          >
+            <div
+              class="modal-dialog modal-dialog-scrollable modal-lg mdContent"
+              role="document"
+            >
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title modalTitle" id="label">
+                    Cam at {{ camera['location'] }}
+                  </h5>
+                  <button
+                    type="button"
+                    class="close"
+                    data-dismiss="modal"
+                    aria-label="Close"
+                  >
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <img
+                    id="bg"
+                    class="center"
+                    src="{{ url_for('video_feed', id=camera['_id']) }}"
+                  />
+                </div>
+                <div class="modal-footer"></div>
+              </div>
+            </div>
+          </div>
+        {% endif %}
+        {{ render_edit_camera_form(id=camera['_id'],
+                                  supervisor_id=camera['supervisor_id'], 
+                                  url=camera['url'],
+                                  location=camera['location'], 
+                                  status=camera['status'], 
+                                  security=security) }}
       {% endfor %}
     </tbody>
   </table>
