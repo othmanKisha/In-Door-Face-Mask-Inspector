@@ -160,10 +160,12 @@ You can check microsoft's documentation on how to make a project with azure acti
     AZURE_CLIENT_SECRET=${AZURE_CLIENT_SECRET} # Stored in OS environment
     AZURE_SUBSCRIPTION_ID=${AZURE_SUBSCRIPTION_ID} # Stored in OS environment
     AZURE_TENANT_ID=${AZURE_TENANT_ID} # Stored in OS environment
+    
     MONGODB_DATABASE=<The name of the database to be created>
     MONGODB_USERNAME=<The username of the database to be created>
     MONGODB_PASSWORD=<The password of the database to be created>
     MONGODB_HOSTNAME=mongodb # This is the name of mongodb container
+    
     EMAIL_ADDRESS=<The email address created to send alerts>
     EMAIL_PASSWORD=<The password of the alerts email address>
     SMTP_SERVER=<The mail server, it is smtp.gmail.com when you use gmail, you can search the other mail servers>
