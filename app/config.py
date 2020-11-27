@@ -1,9 +1,10 @@
 import os
 import numpy as np
 from pymongo import MongoClient
+from model.utils import generate_anchors
+from model.load_model import load_tf_model
 from azure.keyvault.secrets import SecretClient
 from azure.identity import DefaultAzureCredential
-from model import generate_anchors, load_tf_model
 
 
 # for sessions
@@ -32,7 +33,7 @@ DB_USER = os.environ['MONGODB_USERNAME']
 DB_PASS = os.environ['MONGODB_PASSWORD']
 DB_HOST = os.environ['MONGODB_HOSTNAME']
 DB_NAME = os.environ['MONGODB_DATABASE']
-DB_PORT = 27017
+DB_PORT = int(os.environ['MONGODB_PORT'])
 cluster = MongoClient(host=DB_HOST, 
                       port=DB_PORT,
                       username=DB_USER, 
@@ -44,12 +45,12 @@ db = cluster[DB_NAME]
 EMAIL_ADDRESS = os.environ["EMAIL_ADDRESS"]
 EMAIL_PASSWORD = os.environ["EMAIL_PASSWORD"]
 SMTP_SERVER = os.environ["SMTP_SERVER"]
-SMTP_PORT = 587
+SMTP_PORT = int(os.environ['SMTP_PORT'])
 
 # [model config]
-CONFIDENCE = 0.5
-DIR = "model"
-MODEL = "face_mask_detection.pb"
+CONFIDENCE = float(os.environ['MODEL_CONFIDENCE'])
+DIR = os.environ['MODEL_DIRECTORY']
+MODEL = os.environ['MODEL_FILE']
 SESS, GRAPH = load_tf_model(os.path.join(DIR, MODEL))
 # anchor configuration
 feature_map_sizes = [[33, 33], [17, 17], [9, 9], [5, 5], [3, 3]]

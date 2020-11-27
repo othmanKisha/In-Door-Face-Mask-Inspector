@@ -10,17 +10,18 @@ import time
 import uuid
 import gridfs
 import config
-import threading
 import numpy as np
 from smtplib import SMTP
 from datetime import datetime
+from threading import Thread, Timer
 from email.mime.text import MIMEText
 from email.mime.image import MIMEImage
+from model.load_model import tf_inference
 from email.mime.multipart import MIMEMultipart
-from model import (decode_bbox, 
-                   single_class_non_max_suppression, 
-                   tf_inference
-                   )
+from model.utils import decode_bbox, single_class_non_max_suppression 
+
+
+ALERT_TRIGGER = dict()   # Used for fixing a time period to the alert
 
 
 class BaseCamera(object):
@@ -34,7 +35,7 @@ class BaseCamera(object):
         self.sources[self._id] = source
         if BaseCamera.threads.get(self._id) is None:
             # start background frame thread
-            BaseCamera.threads[self._id] = threading.Thread(
+            BaseCamera.threads[self._id] = Thread(
                 target=self._thread, 
                 args=(self._id, self.sources[self._id])
             )
@@ -52,7 +53,7 @@ class BaseCamera(object):
             return None
 
     @staticmethod
-    def _frames(source):
+    def _frames(_id, source):
         """"Generator that returns frames from the camera."""
         raise RuntimeError('Must be implemented by subclasses.')
 
@@ -60,7 +61,7 @@ class BaseCamera(object):
     def _thread(cls, _id, source):
         """Camera background thread."""
         print('Starting camera thread.')
-        frames_iterator = cls._frames(source)
+        frames_iterator = cls._frames(_id, source)
         for frame in frames_iterator:
             BaseCamera.frames[_id] = frame
             time.sleep(0)
@@ -72,15 +73,10 @@ class Camera(BaseCamera):
         super(Camera, self).__init__(_id, cam['url'])
 
     @staticmethod
-    def _frames(source):
+    def _frames(_id, source):
+        global ALERT_TRIGGER
         camera = cv2.VideoCapture(source)
-        height = camera.get(cv2.CAP_PROP_FRAME_HEIGHT)
-        width = camera.get(cv2.CAP_PROP_FRAME_WIDTH)
-        fps = camera.get(cv2.CAP_PROP_FPS)
-        fourcc = cv2.VideoWriter_fourcc(*'XVID')
-        total_frames = camera.get(cv2.CAP_PROP_FRAME_COUNT)
-        timer = 0
-        trigger_alert = False
+        ALERT_TRIGGER[_id] = False
         status = True
 
         if camera.isOpened():
@@ -95,19 +91,12 @@ class Camera(BaseCamera):
                                               )
 
                     jpg = cv2.imencode('.jpg', img)[1]
-                    if trigger_alert:
-                        if timer == 60:
-                            timer = 0
-                            trigger_alert = False  
-                        else: 
-                            timer += 1
-                        
-                    if has_violation and not trigger_alert:
-                        trigger_alert = True
-                        alert_timer = threading.Thread(target=alert_and_store, 
-                                                       args=(jpg, source)
-                                                       )
-                        alert_timer.start()
+                    if has_violation and not ALERT_TRIGGER[_id]:
+                        ALERT_TRIGGER[_id] = True
+                        _trigger = Timer(60, trigger, args=(_id))
+                        _trigger.start()
+                        _alert = Thread(target=alert, args=(jpg, _id))
+                        _alert.start()
 
                     io_buf = io.BytesIO(jpg)
                     frame = io_buf.getvalue()
@@ -179,53 +168,58 @@ def inference(image,
     return has_violation                                        
 
 
-def alert_and_store(jpg, source):
-    """
-    index route
-    :param:
-    :return: 
-    """
-    cam = config.db['cameras'].find_one({'url': source})
+def trigger(_id):
+    global ALERT_TRIGGER
+    ALERT_TRIGGER[_id] = False
+
+
+def alert(image, _id):
+    cam = config.db['cameras'].find_one({'_id': uuid.UUID(_id)})
     if cam['supervisor_id'] != -1:
         sec = config.db['security'].find_one({
             '_id': uuid.UUID(cam['supervisor_id'])
             })
-        To = sec['email']
+        send_mail(sec, cam, image)
+    store_image(cam, image)
 
-        text = MIMEText(
-            f"""
-            Dear Mr. {sec['last_name']},
 
-            We have detected a violation on {cam['location']}. 
-            You can find the violation picture attached with this email. 
-            Please check the picture.
+def send_mail(receiver, camera, image):
+    msg = MIMEMultipart()
+    msg['Subject'] = 'IDFMI Alert'
+    msg['From'] = config.EMAIL_ADDRESS
+    msg['To'] = receiver['email']
+    msg.attach(MIMEText(
+        f"""
+        Dear Mr. {receiver['last_name']},
 
-            regards,
-            IDFMI Team
-            """
-            )
-        image = MIMEImage(jpg.tostring(), name="ViolationPic.jpg")
-        msg = MIMEMultipart()
-        msg['Subject'] = 'IDFMI Alert'
-        msg['From'] = config.EMAIL_ADDRESS
-        msg['To'] = To
-        msg.attach(text)
-        msg.attach(image)
+        We have detected a violation on {camera['location']}. 
+        You can find the violation picture attached with this email. 
+        Please check the picture.
 
-        smtp = SMTP(config.SMTP_SERVER, config.SMTP_PORT)
-        smtp.ehlo()
-        smtp.starttls()
-        smtp.ehlo()
-        smtp.login(config.EMAIL_ADDRESS, config.EMAIL_PASSWORD)
-        smtp.sendmail(config.EMAIL_ADDRESS, To, msg.as_string())
-        smtp.quit()
+        regards,
+        IDFMI Team
+        """
+        ))
+    msg.attach(MIMEImage(image.tostring(), name="ViolationPic.jpg"))
 
+    smtp = SMTP(config.SMTP_SERVER, config.SMTP_PORT)
+    smtp.ehlo()
+    smtp.starttls()
+    smtp.ehlo()
+    smtp.login(config.EMAIL_ADDRESS, config.EMAIL_PASSWORD)
+    smtp.sendmail(config.EMAIL_ADDRESS, receiver['email'], msg.as_string())
+    smtp.quit()
+
+
+def store_image(camera, image):
     # searching for the location of the camera
-    roomName = cam['location']
+    roomName = camera['location']
     fs = gridfs.GridFS(config.db)  # gridFS instance
     now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")  # get time
+
     # Converting the picture to bytes
-    io_buf = io.BytesIO(jpg)
+    io_buf = io.BytesIO(image)
     frame = io_buf.getvalue()
     io_buf.close()
+
     fs.put(frame, date=now, room=roomName)  # save image into DB.
