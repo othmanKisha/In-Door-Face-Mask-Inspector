@@ -13,6 +13,7 @@ import gridfs
 import config
 import threading
 import numpy as np
+from smtplib import SMTP
 from datetime import datetime
 from email.mime.text import MIMEText
 from email.mime.image import MIMEImage
@@ -30,7 +31,7 @@ class BaseCamera(object):
 
     def __init__(self, _id, source):
         """Start the background camera thread if it isn't running yet."""
-        self._id = uuid.UUID(_id)
+        self._id = str(_id)
         self.sources[self._id] = source
         if BaseCamera.threads.get(self._id) is None:
             # start background frame thread
@@ -79,29 +80,34 @@ class Camera(BaseCamera):
         fps = camera.get(cv2.CAP_PROP_FPS)
         fourcc = cv2.VideoWriter_fourcc(*'XVID')
         total_frames = camera.get(cv2.CAP_PROP_FRAME_COUNT)
-        flag = False
+        timer = 0
+        trigger_alert = False
         status = True
 
         if camera.isOpened():
             while status:
                 (status, img) = camera.read()
                 if status:
-                    has_violation = False
-                    inference(img,
-                              has_violation,
-                              config.CONFIDENCE,
-                              iou_thresh=0.5,
-                              target_shape=(260, 260),
-                              draw_result=True
-                              )
+                    has_violation = inference(img,
+                                              config.CONFIDENCE,
+                                              iou_thresh=0.5,
+                                              target_shape=(260, 260),
+                                              draw_result=True
+                                              )
 
                     jpg = cv2.imencode('.jpg', img)[1]
-                    if has_violation and not flag:
-                        flag = True
-                        alert_timer = threading.Timer(60, 
-                                                      alert_and_store,
-                                                      args=(jpg, source, flag)
-                                                      )
+                    if trigger_alert:
+                        if timer == 60:
+                            timer = 0
+                            trigger_alert = False  
+                        else: 
+                            timer += 1
+                        
+                    if has_violation and not trigger_alert:
+                        trigger_alert = True
+                        alert_timer = threading.Thread(target=alert_and_store, 
+                                                       args=(jpg, source)
+                                                       )
                         alert_timer.start()
 
                     io_buf = io.BytesIO(jpg)
@@ -111,7 +117,6 @@ class Camera(BaseCamera):
 
 
 def inference(image,
-              has_violation,
               conf_thresh=0.5,
               iou_thresh=0.4,
               target_shape=(160, 160),
@@ -127,6 +132,7 @@ def inference(image,
     :param show_result: whether to display the image.
     :return:
     '''
+    has_violation = False
     height, width, _ = image.shape
     image_resized = cv2.resize(image, target_shape)
     image_np = image_resized / 255.0
@@ -171,9 +177,10 @@ def inference(image,
                                             cv2.FONT_HERSHEY_SIMPLEX, 0.8, 
                                             color
                                             )
+    return has_violation                                        
 
 
-def alert_and_store(jpg, source, flag):
+def alert_and_store(jpg, source):
     """
     index route
     :param:
@@ -184,46 +191,42 @@ def alert_and_store(jpg, source, flag):
         sec = config.db['security'].find_one({
             '_id': uuid.UUID(cam['supervisor_id'])
             })
-        To = list(sec['email'])
+        To = sec['email']
 
-        msg = MIMEMultipart()
-        msg['Subject'] = 'IDFMI Alert'
-        msg['From'] = config.EMAIL_ADDRESS
-        msg['To'] = To
         text = MIMEText(
             f"""
             Dear Mr. {sec['last_name']},
 
-            We have detected a violation on {cam['location']}. You can find
-            the violation picture attached with this email. Please check
-            the picture.
+            We have detected a violation on {cam['location']}. 
+            You can find the violation picture attached with this email. 
+            Please check the picture.
 
             regards,
             IDFMI Team
             """
             )
-        image = MIMEImage(jpg, name="ViolationPic.jpg")
+        image = MIMEImage(jpg.tostring(), name="ViolationPic.jpg")
+        msg = MIMEMultipart()
+        msg['Subject'] = 'IDFMI Alert'
+        msg['From'] = config.EMAIL_ADDRESS
+        msg['To'] = To
         msg.attach(text)
         msg.attach(image)
 
-        config.smtp.ehlo()
-        config.smtp.starttls()
-        config.smtp.ehlo()
-
-        config.smtp.login(config.EMAIL_ADDRESS, config.EMAIL_PASSWORD)
-        config.smtp.sendmail(config.EMAIL_ADDRESS, To, msg.as_string())
-        config.smtp.quit()
+        smtp = SMTP(config.SMTP_SERVER, config.SMTP_PORT)
+        smtp.ehlo()
+        smtp.starttls()
+        smtp.ehlo()
+        smtp.login(config.EMAIL_ADDRESS, config.EMAIL_PASSWORD)
+        smtp.sendmail(config.EMAIL_ADDRESS, To, msg.as_string())
+        smtp.quit()
 
     # searching for the location of the camera
     roomName = cam['location']
-
     fs = gridfs.GridFS(config.db)  # gridFS instance
-    # converting the image to bytes
+    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")  # get time
+    # Converting the picture to bytes
     io_buf = io.BytesIO(jpg)
     frame = io_buf.getvalue()
     io_buf.close()
-
-    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")  # get time
     fs.put(frame, date=now, room=roomName)  # save image into DB.
-
-    flag = False

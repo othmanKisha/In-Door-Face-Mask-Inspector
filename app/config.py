@@ -1,6 +1,5 @@
 import os
 import numpy as np
-from smtplib import SMTP
 from pymongo import MongoClient
 from azure.keyvault.secrets import SecretClient
 from azure.identity import DefaultAzureCredential
@@ -46,7 +45,6 @@ EMAIL_ADDRESS = os.environ["EMAIL_ADDRESS"]
 EMAIL_PASSWORD = os.environ["EMAIL_PASSWORD"]
 SMTP_SERVER = os.environ["SMTP_SERVER"]
 SMTP_PORT = 587
-smtp = SMTP(SMTP_SERVER, SMTP_PORT)
 
 # [model config]
 CONFIDENCE = 0.5

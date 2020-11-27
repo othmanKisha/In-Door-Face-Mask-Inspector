@@ -123,14 +123,14 @@ def create_camera():
     _id = uuid.uuid4()  # generate a unique id for the record
     data = request.form.copy()
     # In case we want to use webcam
-    url = int(data.get('url')) if data.get('url') == '0' or data.get('url') == '1' else data.get('url')
+    # url = int(data.get('url')) if data.get('url') == '0' or data.get('url') == '1' else data.get('url')
     try:
         if len(list(security_collection.find({}))) < 1:
             raise Exception
         cameras_collection.insert_one({
             "_id": _id,
             "location": data.get('location'),
-            "url": url,
+            "url": data.get('url'),
             "status": data.get('status'),
             "supervisor_id": data.get('supervisor_id')
         })
@@ -178,11 +178,11 @@ def edit_camera(id):
     """
     data = request.form.copy()
     # In case we want to use webcam
-    url = int(data.get('url')) if data.get('url') == '0' or data.get('url') == '1' else data.get('url')
+    # url = int(data.get('url')) if data.get('url') == '0' or data.get('url') == '1' else data.get('url')
     try:
         cameras_collection.update_one({"_id": id}, {"$set": {
             "location": data.get('location'),
-            "url": url,
+            "url": data.get('url'),
             "status": data.get('status'),
             "supervisor_id": data.get('supervisor_id')
         }})
