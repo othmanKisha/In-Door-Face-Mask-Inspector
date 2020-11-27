@@ -166,10 +166,16 @@ You can check microsoft's documentation on how to make a project with azure acti
     MONGODB_USERNAME=<The username of the database to be created>
     MONGODB_PASSWORD=<The password of the database to be created>
     MONGODB_HOSTNAME=mongodb # This is the name of mongodb container
+    MONGODB_PORT=<The port where mongodb will be running> # By default it is 27017
     
     EMAIL_ADDRESS=<The email address created to send alerts>
     EMAIL_PASSWORD=<The password of the alerts email address>
     SMTP_SERVER=<The mail server, it is smtp.gmail.com when you use gmail, you can search the other mail servers>
+    SMTP_PORT=<The mail server port> # The port where the smtp server is running by default 587
+
+    MODEL_CONFIDENCE=<The confidence of the model> # By default 0.5
+    MODEL_FILE=face_mask_detection.pb # The name of the model, can be changed
+    MODEL_DIRECTORY=model # The folder containing the model, can be changed
     ```
 ## Usage
 - make sure you are in the project directory:
