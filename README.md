@@ -37,6 +37,7 @@ The system Architecture of IDFMI
 The following is how the files are structured inside the project:
 
     In-Door-Face-Mask-Inspector/
+        .env
         .gitignore
         docker-compose.yml
         LICENSE
