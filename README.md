@@ -3,7 +3,7 @@
 ### 1. Overview
 This is a project that aims to allow the return of working environment in indoor offices.
 
-It focuses on reading live streams for ip cameras in enterprise environment,
+It focuses on reading live streams from ip cameras in enterprise environment,
 after that, it applies a face mask detection model using the state-of-art Artificial Neural Networks.
 
 In addition to detection, it also provides a customization platform for surveillence cameras.

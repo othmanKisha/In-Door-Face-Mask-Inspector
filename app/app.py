@@ -5,7 +5,6 @@
 import msal
 import uuid
 import config
-import requests
 import functools
 from camera import Camera
 from flask_session import Session

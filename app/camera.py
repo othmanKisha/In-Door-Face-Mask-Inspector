@@ -5,7 +5,6 @@
 # Modified a little bit in inference method from face mask detection repository
 # Code of inference: https://github.com/AIZOOTech/FaceMaskDetection
 import io
-import os
 import cv2
 import time
 import uuid
