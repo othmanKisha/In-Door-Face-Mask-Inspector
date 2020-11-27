@@ -189,16 +189,14 @@ def send_mail(receiver, camera, image):
     msg['From'] = config.EMAIL_ADDRESS
     msg['To'] = receiver['email']
     msg.attach(MIMEText(
-        f"""
-        Dear Mr. {receiver['last_name']},
+        f"""Dear Mr. {receiver['last_name']},
 
         We have detected a violation on {camera['location']}. 
         You can find the violation picture attached with this email. 
         Please check the picture.
 
         regards,
-        IDFMI Team
-        """
+        IDFMI Team"""
         ))
     msg.attach(MIMEImage(image.tostring(), name="ViolationPic.jpg"))
 
