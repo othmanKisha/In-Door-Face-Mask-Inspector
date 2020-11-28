@@ -1,7 +1,7 @@
 const toggleTheme = () => {
   const htmlTag = document.getElementsByTagName("html")[0];
   const navTag = document.getElementsByTagName("nav")[0];
-  const cardTag = document.getElementsByClassName("card")[0];
+  const cards = document.getElementsByClassName("card");
   const buttons = document.getElementsByClassName("card-btn");
   const tables = document.getElementsByClassName("card-tbl");
   const inputs = document.getElementsByClassName("card-inp");
@@ -14,8 +14,11 @@ const toggleTheme = () => {
     navTag.classList.remove("bg-dark");
     navTag.classList.add("bg-light");
 
-    cardTag.classList.remove("bg-dark");
-    cardTag.classList.add("bg-light");
+    if (cards !== null)
+      for (let i = 0; i < cards.length; i++) {
+        cards[i].classList.remove("bg-dark");
+        cards[i].classList.add("bg-light");
+      }
 
     if (buttons !== null)
       for (let i = 0; i < buttons.length; i++) {
@@ -47,8 +50,11 @@ const toggleTheme = () => {
   navTag.classList.remove("bg-light");
   navTag.classList.add("bg-dark");
 
-  cardTag.classList.remove("bg-light");
-  cardTag.classList.add("bg-dark");
+  if (cards !== null)
+    for (let i = 0; i < cards.length; i++) {
+      cards[i].classList.remove("bg-light");
+      cards[i].classList.add("bg-dark");
+    }
 
   if (buttons !== null)
     for (let i = 0; i < buttons.length; i++) {

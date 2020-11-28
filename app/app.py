@@ -8,6 +8,7 @@ import config
 import functools
 from camera import Camera
 from flask_session import Session
+from bson.objectid import ObjectId
 import flask_monitoringdashboard as dashboard
 from werkzeug.middleware.proxy_fix import ProxyFix
 from flask import (Flask,
@@ -28,6 +29,9 @@ dashboard.bind(app)
 app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 cameras_collection = config.db['cameras']
 security_collection = config.db['security']
+files_collection = config.db['fs.files']
+chunks_collection = config.db['fs.chunks']
+settings_collection = config.db['settings']
 
 
 def login_required(f):
@@ -101,9 +105,13 @@ def index():
     """
     cameras = list(cameras_collection.find({}))
     security = list(security_collection.find({}))
+    images = list(files_collection.find({}))
+    settings = list(settings_collection.find({}))
     return render_template('pages/home.html',
                            cameras=cameras,
-                           security=security
+                           security=security,
+                           images=images,
+                           settings=settings
                            )
 
 
@@ -254,6 +262,23 @@ def delete_security(id):
         return redirect(url_for("index"))
 
 
+@app.route("/confidence/edit", methods=['POST'])
+@login_required
+def change_confidence():
+    """
+    index route
+    :param:
+    :return: 
+    """
+    data = request.form.copy()
+    confidence = float(data['confidence'])
+    settings_collection.update_one({"id": 0}, {
+        "$set": {"confidence": confidence}
+    })
+    flash("success|Model confidence updated successfully.")
+    return redirect(url_for('index'))
+
+
 @app.route('/video/feed/<uuid:id>')
 @login_required
 def video_feed(id):
@@ -269,6 +294,23 @@ def video_feed(id):
     except:
         flash("danger|There is no camera with this id")
         return redirect(url_for('index'))
+
+
+@app.route('/images/<files_id>')
+@login_required
+def get_image(files_id):
+    """
+    index route
+    :param:
+    :return: 
+    """
+    chunks = chunks_collection.find_one({"files_id": ObjectId(files_id)})
+    return Response((b'--frame\r\n'
+                     b'Content-Type: image/jpeg\r\n\r\n' +
+                     chunks['data'] + b'\r\n\r\n'
+                     ),
+                     mimetype='multipart/x-mixed-replace; boundary=frame'
+                     )
 
 
 @app.route("/login")

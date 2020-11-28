@@ -125,6 +125,13 @@ table {
   }
 }
 
+.btn-nav {
+  &:hover {
+    background: none;
+    text-decoration: none;
+  }
+}
+
 .welcomeText {
   color: $color;
 }

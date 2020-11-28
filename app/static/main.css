@@ -115,6 +115,11 @@ table {
   color: var(--global-hoverColor);
 }
 
+.btn-nav:hover {
+  background: none;
+  text-decoration: none;
+}
+
 .welcomeText {
   color: var(--global-color);
 }

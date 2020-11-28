@@ -17,7 +17,7 @@ services:
       - ./app/:/app/
 
   mongo:
-    image: mongo:latest
+    build: ./mongo
     container_name: mongodb
     restart: unless-stopped
     command: mongod --auth
@@ -25,6 +25,8 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=${MONGODB_USERNAME}
       - MONGO_INITDB_ROOT_PASSWORD=${MONGODB_PASSWORD}
       - MONGO_INITDB_DATABASE=${MONGODB_DATABASE}
+      - MONGO_PORT=${MONGODB_PORT}
+      - INIT_CONFIDENCE=${MODEL_CONFIDENCE}
       - MONGODB_DATA_DIR=/data/db
       - MONGODB_LOG_DIR=/dev/null
     networks:

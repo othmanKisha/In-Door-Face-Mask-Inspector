@@ -83,8 +83,9 @@ class Camera(BaseCamera):
             while status:
                 (status, img) = camera.read()
                 if status:
+                    settings = config.db['settings'].find_one({"id": 0})
                     has_violation = inference(img,
-                                              config.CONFIDENCE,
+                                              settings['confidence'],
                                               iou_thresh=0.5,
                                               target_shape=(260, 260),
                                               draw_result=True

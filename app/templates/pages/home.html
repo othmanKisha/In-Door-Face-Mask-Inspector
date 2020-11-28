@@ -10,6 +10,69 @@
     id="modalButton"
     class="btn btn-light card-btn"
     data-toggle="modal"
+    data-target="#view_img"
+  >
+    <i class="fa fa-ban"></i>
+    View Violation Images
+  </button>
+  <div
+  class="modal fade"
+  id="view_img"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="viewImgLabel"
+  aria-hidden="true"
+  >
+  <div
+    class="modal-dialog modal-dialog-scrollable modal-lg mdContent"
+    role="document"
+  >
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title modalTitle" id="viewImgLabel">
+          Violation Images
+        </h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          {% for image in images %}
+            <div class="col-sm-4">
+              <div class="card bg-light" id="home">
+                <img class="card-img-top" src="{{ url_for('get_image', files_id=image['_id']) }}" alt="Card image cap">
+                <div class="card-body">
+                  <h5 class="card-title welcomeText">
+                    Date: {{ image['date'] }} 
+                    <br>
+                    Room: {{ image['room'] }}
+                  </h5>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+        {% if images|length < 1 %} 
+          <h3 class="welcomeText">
+            There are no violations recorded
+          </h3>
+        {% endif %}
+      </div>
+      <div class="modal-footer"></div>
+    </div>
+  </div>
+  </div>
+  <button
+    type="button"
+    id="modalButton"
+    class="btn btn-light card-btn"
+    data-toggle="modal"
     data-target="#new_cam"
   >
     <i class="fa fa-plus-square"></i>
