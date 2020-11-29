@@ -25,7 +25,7 @@ Python version: 3.8.1
 Web framework:  Flask
 Database:       MongoDB (Using the pymongo driver)
 App server:     gunicorn
-Worker class:   gevent
+Worker class:   meinheld
 Web server:     Nginx
 Front end:      Bootsrap4, JQuery
 ```
@@ -66,6 +66,10 @@ The following is how the files are structured inside the project:
                 pages/
                    home.html
                    welcome.html
+        mongo/
+            Dockerfile
+            settings-insert.js
+            setup.sh
         nginx/
             Dockerfile
             idfmi.conf
