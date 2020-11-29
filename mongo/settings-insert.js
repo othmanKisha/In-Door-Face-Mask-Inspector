@@ -8,5 +8,5 @@ db.settings.drop();
 
 db.settings.insert({
     id: 0,
-    confidence: parseFloat(getEnvValue('INIT_CONFIDENCE', 0.5))
+    confidence: parseFloat(getEnvValue('INIT_CONFIDENCE', '0.5'))
 });
