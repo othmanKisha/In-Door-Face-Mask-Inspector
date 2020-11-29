@@ -94,7 +94,7 @@ $("#theme-toggle").on("click", toggleTheme);
 
 $("#searchinp").on("keyup", function () {
   let value = $(this)[0].value.toLowerCase();
-  
+
   $("#tableBody tr").filter(function () {
     $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
   });
@@ -102,8 +102,70 @@ $("#searchinp").on("keyup", function () {
 
 $("#searchinpS").on("keyup", function () {
   let value = $(this)[0].value.toLowerCase();
-  
+
   $("#tableBodyS tr").filter(function () {
     $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1);
   });
+});
+
+$("#select-room").change(function () {
+  let roomValue = $(this)[0].value.toLowerCase();
+  let dateValue = $("#select-date")[0].value.toLowerCase();
+  if (roomValue !== "all") {
+    let room = `room: ${roomValue}`;
+    if (dateValue !== "all") {
+      let date = `date: ${dateValue}`;
+      $(".filter-card").filter(function () {
+        $(this).toggle(
+          $(this).text().toLowerCase().indexOf(room) > -1 &&
+            $(this).text().toLowerCase().indexOf(date) > -1
+        );
+      });
+    } else {
+      $(".filter-card").filter(function () {
+        $(this).toggle($(this).text().toLowerCase().indexOf(room) > -1);
+      });
+    }
+  } else {
+    if (dateValue !== "all") {
+      let date = `date: ${dateValue}`;
+      $(".filter-card").filter(function () {
+        $(this).toggle($(this).text().toLowerCase().indexOf(date) > -1);
+      });
+    } else
+      $(".filter-card").filter(function () {
+        $(this).toggle();
+      });
+  }
+});
+
+$("#select-date").change(function () {
+  let dateValue = $(this)[0].value.toLowerCase();
+  let roomValue = $("#select-room")[0].value.toLowerCase();
+  if (dateValue !== "all") {
+    let date = `date: ${dateValue}`;
+    if (roomValue !== "all") {
+      let room = `room: ${roomValue}`;
+      $(".filter-card").filter(function () {
+        $(this).toggle(
+          $(this).text().toLowerCase().indexOf(date) > -1 &&
+            $(this).text().toLowerCase().indexOf(room) > -1
+        );
+      });
+    } else {
+      $(".filter-card").filter(function () {
+        $(this).toggle($(this).text().toLowerCase().indexOf(date) > -1);
+      });
+    }
+  } else {
+    if (roomValue !== "all") {
+      let room = `room: ${roomValue}`;
+      $(".filter-card").filter(function () {
+        $(this).toggle($(this).text().toLowerCase().indexOf(room) > -1);
+      });
+    } else
+      $(".filter-card").filter(function () {
+        $(this).toggle();
+      });
+  }
 });
