@@ -262,20 +262,22 @@ def delete_security(id):
         return redirect(url_for("index"))
 
 
-@app.route("/confidence/edit", methods=['POST'])
+@app.route("/settings/edit", methods=['POST'])
 @login_required
-def change_confidence():
+def change_settings():
     """
     index route
     :param:
     :return: 
     """
     data = request.form.copy()
-    confidence = float(data['confidence'])
     settings_collection.update_one({"id": 0}, {
-        "$set": {"confidence": confidence}
+        "$set": {
+            "confidence": float(data['confidence']),
+            "lock_duration": int(data['lock_duration'])
+        }
     })
-    flash("success|Model confidence updated successfully.")
+    flash("success|Settings have been updated successfully.")
     return redirect(url_for('index'))
 
 
