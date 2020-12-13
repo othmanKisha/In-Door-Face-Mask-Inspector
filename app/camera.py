@@ -94,7 +94,7 @@ class Camera(BaseCamera):
                     jpg = cv2.imencode('.jpg', img)[1]
                     if has_violation and not ALERT_TRIGGER[_id]:
                         ALERT_TRIGGER[_id] = True
-                        _trigger = Timer(settings['lock_duration'], trigger, args=(_id))
+                        _trigger = Timer(settings['lock_duration'], trigger, args=(_id,))
                         _trigger.start()
                         _alert = Thread(target=alert, args=(jpg, _id))
                         _alert.start()
