@@ -11,15 +11,7 @@ from flask_session import Session
 from bson.objectid import ObjectId
 import flask_monitoringdashboard as dashboard
 from werkzeug.middleware.proxy_fix import ProxyFix
-from flask import (Flask,
-                   flash,
-                   redirect,
-                   render_template,
-                   request,
-                   Response,
-                   session,
-                   url_for
-                   )
+from flask import Flask, flash, redirect, render_template, request, Response, session, url_for
 
 
 app = Flask(__name__)
@@ -97,12 +89,6 @@ def _get_token_from_cache(scope=None):
 @app.route("/", methods=['GET'])
 @login_required
 def index():
-    """
-    index route
-    :param:
-    :return: home template which takes the list of all security 
-             members in addition the list of all cameras.
-    """
     cameras = list(cameras_collection.find({}))
     security = list(security_collection.find({}))
     images = list(files_collection.find({}))
@@ -118,19 +104,8 @@ def index():
 @app.route("/create/camera", methods=['POST'])
 @login_required
 def create_camera():
-    """
-    create camera route
-    :param location: the location of the camera retreived from the form.
-    :param url: the rtsp url of the camera retreived from the form.
-    :param status: the status (Working, Stopped) of the camera 
-                   retreived from the form.
-    :param supervisor: the _id of security memeber selected in the form.
-    :return redirect: go to root route with flash of success or failure. 
-    """
-    _id = uuid.uuid4()  # generate a unique id for the record
+    _id = uuid.uuid4()  
     data = request.form.copy()
-    # In case we want to use webcam
-    # url = int(data.get('url')) if data.get('url') == '0' or data.get('url') == '1' else data.get('url')
     try:
         if len(list(security_collection.find({}))) < 1:
             raise Exception
@@ -152,11 +127,6 @@ def create_camera():
 @app.route("/create/security", methods=['POST'])
 @login_required
 def create_security():
-    """
-    index route
-    :param:
-    :return: 
-    """
     _id = uuid.uuid4()
     data = request.form.copy()
     try:
@@ -178,11 +148,6 @@ def create_security():
 @app.route("/edit/camera/<uuid:id>", methods=['POST'])
 @login_required
 def edit_camera(id):
-    """
-    index route
-    :param:
-    :return: 
-    """
     data = request.form.copy()
     # In case we want to use webcam
     # url = int(data.get('url')) if data.get('url') == '0' or data.get('url') == '1' else data.get('url')
@@ -203,11 +168,6 @@ def edit_camera(id):
 @app.route("/edit/security/<uuid:id>", methods=['POST'])
 @login_required
 def edit_security(id):
-    """
-    index route
-    :param:
-    :return: 
-    """
     data = request.form.copy()
     try:
         security_collection.update_one({"_id": id}, {"$set": {
@@ -226,11 +186,6 @@ def edit_security(id):
 @app.route("/delete/camera/<uuid:id>", methods=['POST'])
 @login_required
 def delete_camera(id):
-    """
-    index route
-    :param:
-    :return: 
-    """
     try:
         cameras_collection.delete_one({"_id": id})
         flash(f"success|Camera has been successfully deleted.")
@@ -243,11 +198,6 @@ def delete_camera(id):
 @app.route("/delete/security/<uuid:id>", methods=['POST'])
 @login_required
 def delete_security(id):
-    """
-    index route
-    :param:
-    :return: 
-    """
     try:
         cameras_collection.update_many(
             {'supervisor_id': str(id)},
@@ -265,11 +215,6 @@ def delete_security(id):
 @app.route("/settings/edit", methods=['POST'])
 @login_required
 def change_settings():
-    """
-    index route
-    :param:
-    :return: 
-    """
     data = request.form.copy()
     settings_collection.update_one({"id": 0}, {
         "$set": {
@@ -284,11 +229,6 @@ def change_settings():
 @app.route('/video/feed/<uuid:id>')
 @login_required
 def video_feed(id):
-    """
-    index route
-    :param:
-    :return: 
-    """
     try:
         return Response(generate(Camera(id)),
                         mimetype='multipart/x-mixed-replace; boundary=frame'
@@ -301,11 +241,6 @@ def video_feed(id):
 @app.route('/images/<files_id>')
 @login_required
 def get_image(files_id):
-    """
-    index route
-    :param:
-    :return: 
-    """
     chunks = chunks_collection.find_one({"files_id": ObjectId(files_id)})
     return Response((b'--frame\r\n'
                      b'Content-Type: image/jpeg\r\n\r\n' +
@@ -317,11 +252,6 @@ def get_image(files_id):
 
 @app.route("/login")
 def login():
-    """
-    index route
-    :param:
-    :return: 
-    """
     session["state"] = str(uuid.uuid4())
     # Technically we could use empty list [] as scopes to do just sign in,
     # here we choose to also collect end user consent upfront
@@ -333,11 +263,6 @@ def login():
 
 @app.route("/logout")
 def logout():
-    """
-    index route
-    :param:
-    :return: 
-    """
     # Wipe out user and its token cache from session
     session.clear()
     # Also logout from your tenant's web session
@@ -350,11 +275,6 @@ def logout():
 
 @app.route(config.REDIRECT_PATH)
 def authorized():
-    """
-    index route
-    :param:
-    :return: 
-    """
     if request.args.get('state') != session.get("state"):
         # No-OP. Goes back to Index page
         return redirect(url_for("index"))
